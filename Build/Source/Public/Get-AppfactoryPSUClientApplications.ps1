@@ -56,11 +56,15 @@ function Get-AppfactoryPSUClientApplications {
               $selectedRowData = $TableData.Data.Rows | Where-Object { $_.ID -eq $selectedRow } 
               $AppVersions = Get-AppFactoryServiceAppVersions -appGUID $selectedRow -AllAppList $script:PublishedAppList 
               $AppDetails = $selectedRowData.ClientDetails | ConvertFrom-Json
+              $PreviousVersionNumber = 0
+              if(-not [String]::IsNullOrWhiteSpace($AppDetails.KeepPrevious)){
+                $PreviousVersionNumber = $AppDetails.KeepPrevious
+              }
               Set-UDElement -id "ApplicationGUID" -Attributes @{ "value" = $selectedRow }
               Set-UDElement -id "ApplicationName" -Attributes @{ "value" = $selectedRowData.Name }
               Set-UDElement -id "Enabled" -Attributes @{ "checked" = [System.Convert]::ToBoolean($selectedRowData.Enabled) }
               Set-UDElement -id "DownloadForground" -Attributes @{ "checked" = [System.Convert]::ToBoolean($AppDetails.foreground) }
-              Set-UDElement -id "PreviousVersions" -Attributes @{ "value" = $AppDetails.KeepPrevious }
+              Set-UDElement -id "PreviousVersions" -Attributes @{ "value" = $PreviousVersionNumber }
               Set-UDElement -id "ESP" -Attributes @{ "value" = $AppDetails.espprofiles -join ", " }
               Set-UDElement -id "CopyPrevious" -Attributes @{ "checked" = [System.Convert]::ToBoolean($AppDetails.CopyPrevious) }
               Set-UDElement -id "RemovePrevious" -Attributes @{ "checked" = [System.Convert]::ToBoolean($AppDetails.UnassignPrevious) }
@@ -124,7 +128,7 @@ function Get-AppfactoryPSUClientApplications {
               UninstallExceptions = ((Get-UDelement -id "Uninstall_Exceptions").Value -split ",")
               UnassignPrevious = (Get-UDElement -id "RemovePrevious").checked
               CopyPrevious = (Get-UDElement -id "CopyPrevious").checked
-              KeepPrevious = (Get-UDElement -id "CopyPrevious").Value
+              KeepPrevious = (Get-UDElement -id "PreviousVersions").Value
               foreground = (Get-UDElement -id "DownloadForground").checked
               espprofiles = ((Get-UDelement -id "ESP").Value -split ",")
               InteractiveInstall = (Get-UDElement -id "InteractiveInstall").checked
