@@ -1,0 +1,81 @@
+{
+  "GUID" : "###GUID###",
+  "Information": {
+    "DisplayName": "###DISPLATNAME###",
+    "AppFolderName": "",
+    "AppVersion": "<replaced_by_build>",
+    "Description": "###DESCRIPTION###",
+    "Publisher": "###PUBLISHER###",
+    "Notes": "###NOTES###",
+    "Owner": "###OWNER###",
+    "InformationURL": "###INFORMATIONURL###",
+    "PrivacyURL": "###PRIVACYURL###"
+  },
+  "SourceFiles": {
+    "AppSource": "###APPSOURCE###",
+    "AppID": "###APPID###",
+    "AppSetupFileName": "###APPSETUPFILENAME###",
+    "StorageAccountContainerName": "###STORAGECONTAINER###",
+    "ExtraFiles": [],
+    "FilterOptions": {},
+    "publishTo": [],
+    "DependsOn": [],
+    "Active": false,
+    "LastUpdate": ""
+  },
+  "Install" : {
+    "type": "",
+    "argumentList": "",
+    "additionalArgumentList": "",
+    "secureArgumentList": false,
+    "successExitCodes": [],
+    "rebootExitCodes": [],
+    "ignoreExitCodes": [],
+    "conflictingProcessStart": [],
+    "conflictingProcessEnd": [],
+    "installer": "===SETUPFILENAME===",
+    "transforms": "",
+    "SkipMSIAlreadyInstalledCheck": false,
+    "script": [],
+    "wim": false
+  },
+  "Uninstall" : {
+    "type": "",
+    "name": "",
+    "nameMatch": "",
+    "productCode": "",
+    "filterScript": "",
+    "argumentList": "",
+    "additionalArgumentList": "",
+    "secureArgumentList": false,
+    "script": [],
+    "installer": "===SETUPFILENAME===",
+    "wim": false,
+    "dirFiles": false,
+    "ignoreExitCodes": "",
+    "conflictingProcessStart": [],
+    "conflictingProcessEnd": []
+  },
+  "PackageInformation": {
+    "SetupType": "EXE",
+    "SetupFile": "Invoke-AppDeployToolkit.exe",
+    "SourceFolder": "Source",
+    "OutputFolder": "Package",
+    "IconFile": "Icon.png"
+  },
+  "Program": {
+    "InstallCommand": "Invoke-AppDeployToolkit.exe Install -DeployMode Silent",
+    "InstallCommandInteractive": "%SystemRoot%\\System32\\WindowsPowerShell\\v1.0\\PowerShell.exe -ExecutionPolicy Bypass -NoProfile -File Invoke-ServiceUI.ps1 -DeploymentType Install -AllowRebootPassThru",
+    "UninstallCommand": "Invoke-AppDeployToolkit.exe Uninstall -DeployMode Silent",
+    "UninstallCommandInteractive": "%SystemRoot%\\System32\\WindowsPowerShell\\v1.0\\PowerShell.exe -ExecutionPolicy Bypass -NoProfile -File Invoke-ServiceUI.ps1 -DeploymentType Uninstall -AllowRebootPassThru",
+    "InstallExperience": "###INSTALLEXPERIENCE###",
+    "DeviceRestartBehavior": "###RESTARTBEHAVIOUR###",
+    "AllowAvailableUninstall": "###ALLOWUNINSTALL###"
+  },
+  "RequirementRule": {
+    "MinimumSupportedWindowsRelease": "###MINIMUMSUPPORTEDWINDOWSRELEASE###",
+    "Architecture": "###ARCHITECTURE###"
+  },
+  "CustomRequirementRule": [],
+  "DetectionRule": [ ]
+}
