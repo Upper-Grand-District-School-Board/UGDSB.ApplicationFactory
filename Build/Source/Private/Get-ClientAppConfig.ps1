@@ -36,7 +36,7 @@ function Get-ClientAppConfig{
     "InteractiveUninstall"    = $false
   }
   if($null -ne $customConfig){
-    $customConfig.PSObject.Properties | ForEach-Object {
+    $customConfig.PSObject.Properties | Where-Object {$_.Name -ne "Value"} | ForEach-Object {
       $defaultConfig.$($_.Name) = $_.Value
     }
   }

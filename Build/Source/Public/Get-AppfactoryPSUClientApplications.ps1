@@ -17,6 +17,7 @@ function Get-AppfactoryPSUClientApplications {
       }
     }
   } -OnChange {
+    Sync-UDElement -Id 'ApplicationListTableData'
   }
   New-UDElement -tag "br"
   New-UDElement -tag "br"
@@ -29,9 +30,10 @@ function Get-AppfactoryPSUClientApplications {
             New-UDDataGrid -id "ApplicationListTableData" -LoadRows {
               Initialize-AppFactoryProcess -ApplicationServicePath $AppFactory_ApplicationPath
               $tableData = [System.Collections.Generic.List[PSCustomObject]]@()
-              $rawData = Get-AppFactoryApp -Active | Where-Object { [String]::IsNullOrWhiteSpace($_.SourceFiles.publishTo) -or (-not [String]::IsNullOrWhiteSpace($_.SourceFiles.publishTo) -and $_.SourceFiles.publishTo -contains $defaultValue) }
+              $clientGUID = (Get-UDElement -id "ClientIDs").value
+              $rawData = Get-AppFactoryApp -Active | Where-Object { [String]::IsNullOrWhiteSpace($_.SourceFiles.publishTo) -or (-not [String]::IsNullOrWhiteSpace($_.SourceFiles.publishTo) -and $_.SourceFiles.publishTo -contains $clientGUID) }
               foreach ($item in $rawData) {
-                $AppDetails = Get-AppFactoryServiceClientAppConfig -orgGUID $defaultValue -appGUID $item.GUID
+                $AppDetails = Get-AppFactoryServiceClientAppConfig -orgGUID $clientGUID -appGUID $item.GUID
                 if ([String]::IsNullOrWhiteSpace($AppDetails.AddToIntune)) { $AddToIntune = "False" }
                 else { $AddToIntune = "True" }
                 $obj = [PSCustomObject]@{
@@ -145,10 +147,6 @@ function Get-AppfactoryPSUClientApplications {
             }
             
             $AppConfig.Add("filters", $filters)            
-            Set-UDElement -Id  "ts_step" -Content {
-              New-UDTypography -Text ($filters | ConvertTo-JSON -Depth 5)
-              $AppConfig | ConvertTo-JSON -Depth 5 | Out-File -FilePath "C:\Support\Temp.json"
-            } 
             Set-AppFactoryServiceClientAppConfig @AppConfig
             Sync-UDElement -Id 'ApplicationListTableData'  
           }
@@ -220,14 +218,7 @@ function Get-AppfactoryPSUClientApplications {
             }              
           }
         }        
-        New-UDElement -Tag "div" -id "ts_step" -content {
-          #New-UDTypography -Text $clienGUID
-          #New-UDTypography -Text "---------------"
-          #New-UDTypography -Text $_.GUID
-          #New-UDTypography -Text ($roles | ConvertTo-Json -Depth 5)
-          #New-UDTypography -Text "---------------"
-          #New-UDTypography -Text ($clients | ConvertTo-Json -Depth 5)
-        }
+        New-UDElement -Tag "div" -id "ts_step" -content {}
       }      
     }
   }
