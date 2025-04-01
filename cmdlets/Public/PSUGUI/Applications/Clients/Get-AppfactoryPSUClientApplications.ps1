@@ -47,10 +47,11 @@ function Get-AppfactoryPSUClientApplications {
               }              
               $TableData | Out-UDDataGridData -Context $EventData -TotalRows $Rows.Length
             } -Columns @(
+              New-UDDataGridColumn -Field ID -Flex 0 -DisableColumnMenu -DisableReorder -Hide
               New-UDDataGridColumn -Field Name -Flex 1.5
               New-UDDataGridColumn -Field Enabled -Flex 1.5
               New-UDDataGridColumn -Field Updated -Flex 1.5
-              New-UDDataGridColumn -Field ClientDetails -Flex 0 -DisableColumnMenu -DisableExport -DisableReorder -Hide #-Render {}
+              New-UDDataGridColumn -Field ClientDetails -Flex 0 -DisableColumnMenu -DisableExport -DisableReorder -Hide -Render {}
             ) -StripedRows -AutoHeight $true -PageSize 10 -RowsPerPageOptions @(10, 25, 50, 100, 1000) -ShowPagination -DefaultSortColumn Name -OnSelectionChange {
               Import-Module -Name $AppFactory_Module -Force
               $TableData = Get-UDElement -Id "ApplicationListTableData"
