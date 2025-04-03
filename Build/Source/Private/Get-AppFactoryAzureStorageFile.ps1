@@ -10,11 +10,18 @@ function Get-AppFactoryAzureStorageFile{
     $StorageBlobContents = Get-AzStorageBlob -Container $application.SourceFiles.StorageAccountContainerName -Context $script:appStorageContext -ErrorAction Stop | Where-Object {$_.Name -like "$($path)*"}
     foreach($blob in $StorageBlobContents){
       $file = $blob.Name -split "/"
+      if($file.length -gt 2){
+        $directoryPath = Join-path -Path $destination -ChildPath (($file[1..($file.length -2)]) -join "/")
+        New-Item -Path $directoryPath -ItemType Directory -Force | Out-Null
+      }
+      else{
+        $directoryPath = $destination
+      }
       $params = @{
         Context = $script:appStorageContext
         Container = $application.SourceFiles.StorageAccountContainerName
         Blob = $blob.Name
-        Destination = (Join-Path -Path $destination -ChildPath $file[-1])
+        Destination = (Join-Path -Path $directoryPath -ChildPath $file[-1])
         Force = $true
       }
       Get-AzStorageBlobContent @params | Out-Null  

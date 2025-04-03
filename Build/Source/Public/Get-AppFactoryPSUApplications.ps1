@@ -226,6 +226,12 @@ function Get-AppFactoryPSUApplications {
                   "Evergreen" {
                     New-PSUGUISourceEvergreen -SourceData  $selectedRowData.sourcefiles
                   }
+                  "PSADT" {
+                    New-PSUGUISourcePSADT -SourceData  $selectedRowData.Information
+                  }
+                  "StorageAccount - PowerShell Script" {
+                    New-PSUGUISourceStorageAccountScript -SourceData  $selectedRowData.Information
+                  }                  
                 }
               }
               # Set Install Data
@@ -240,6 +246,9 @@ function Get-AppFactoryPSUApplications {
                   }
                   "MSI" {
                     New-PSUGUIInstallMSI -SourceData $selectedRowData.install
+                  }
+                  "Powershell" {
+                    New-PSUGUIInstallPowershell -SourceData  $selectedRowData.install -versiondata $selectedRowData.Information
                   }
                 }
               }              
@@ -261,7 +270,10 @@ function Get-AppFactoryPSUApplications {
                   }
                   "GUID" {
                     New-PSUGUIUninstallGUID -SourceData $selectedRowData.Uninstall
-                  }                  
+                  }  
+                  "Powershell" {
+                    New-PSUGUIUninstallPowershell -SourceData  $selectedRowData.uninstall
+                  }                
                 }
               }               
               Set-UDElement -id "UpdateApplication" -Properties @{

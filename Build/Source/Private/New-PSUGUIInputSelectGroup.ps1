@@ -45,6 +45,9 @@ function New-PSUGUIInputSelectGroup {
               "LocalStorage" {
                 New-PSUGUISourceStorageAccount
               }
+              "PSADT" {
+                New-PSUGUISourcePSADT
+              }       
             }
           }
         }
@@ -82,7 +85,7 @@ function New-PSUGUIInputSelectGroup {
               }
               "GUID" {
                 New-PSUGUIUninstallGUID
-              }    
+              }  
             }
           }          
         }        

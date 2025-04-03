@@ -3,6 +3,7 @@ function Set-AppFactoryApp {
   param(
     [Parameter(Mandatory = $true)][ValidateNotNullOrEmpty()][String]$appGUID,
     [Parameter()][ValidateNotNullOrEmpty()][String]$displayName,
+    [Parameter()][string]$AppVersion,
     [Parameter()][ValidateNotNullOrEmpty()][String]$AppFolderName,
     [Parameter()][ValidateNotNullOrEmpty()][String]$description,
     [Parameter()][ValidateNotNullOrEmpty()][String]$publisher,
@@ -43,6 +44,7 @@ function Set-AppFactoryApp {
     Rename-Item -Path $originalPath -NewName $AppFolderName
   }
   if ($PSBoundParameters.ContainsKey("displayName")) { $configfile.Information.DisplayName = $displayName }
+  if ($PSBoundParameters.ContainsKey("AppVersion")) { $configfile.Information.AppVersion = $AppVersion }
   if ($PSBoundParameters.ContainsKey("description")) { $configfile.Information.Description = $Description }  
   if ($PSBoundParameters.ContainsKey("publisher")) { $configfile.Information.Publisher = $Publisher }  
   if ($PSBoundParameters.ContainsKey("notes")) { $configfile.Information.Notes = $Notes }  

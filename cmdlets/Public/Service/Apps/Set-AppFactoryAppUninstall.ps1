@@ -2,7 +2,7 @@ function Set-AppFactoryAppUninstall {
   [CmdletBinding()]
   param(
     [Parameter(Mandatory = $true)][ValidateNotNullOrEmpty()][string]$appGUID,
-    [Parameter(Mandatory = $true)][ValidateSet("None", "MSI", "EXE", "Name", "GUID", "ECNO", "Script")][string]$type,
+    [Parameter(Mandatory = $true)][ValidateSet("None", "MSI", "EXE", "Name", "GUID", "ECNO", "Script", "Powershell")][string]$type,
     [Parameter()][string]$name,
     [Parameter()][ValidateSet('Contains','Exact','Wildcard','Regex')][string]$nameMatch,
     [Parameter()][string]$productCode,

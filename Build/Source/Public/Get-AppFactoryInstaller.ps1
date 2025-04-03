@@ -54,6 +54,20 @@ function Get-AppFactoryInstaller {
       }
       continue
     }
+    # Download Extra Files
+    try{
+      if($Application.SourceFiles.ExtraFiles){
+        $OutFilePath = Join-Path -Path $AppSetupFolderPath -ChildPath $application.SourceFiles.AppSetupFileName
+        Get-AppFactoryExtraFiles -application $application -Destination $AppSetupFolderPath -LogLevel $LogLevel 
+      }
+    }
+    catch {
+      if ($script:AppFactoryLogging) {
+        Write-PSFMessage -Message $_ -Level "Error" -Tag "Application", "$($application.Information.DisplayName)", "Error" -Target "Application Factory Service"
+      }
+      continue
+    }
+
     if ($script:AppFactoryLogging) {
       Write-PSFMessage -Message "[<c='green'>$($application.Information.DisplayName)</c>] Successfully downloaded files." -Level $LogLevel -Tag "Application", "$($application.Information.DisplayName)", "WinGet" -Target "AppFactory"
     }    

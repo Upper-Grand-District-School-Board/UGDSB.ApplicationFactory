@@ -94,6 +94,13 @@ function Get-PSUGUIAppInfo {
       required     = $true
       required_for = @("Winget", "Evergreen")
       type         = "text"
+    },
+    @{
+      id           = "AppVersion"
+      param        = "AppVersion"
+      required     = $true
+      required_for = @("PSADT","PowerShell")
+      type         = "text"
     } 
   )
   $FilterInformationMap = @(
