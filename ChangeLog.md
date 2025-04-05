@@ -5,3 +5,4 @@
 - Fix to be able to download "Folders" from azure storage since no longer doing archive files
 - Added function for extra files
 - Added version support for PSADT scripts
+- Added cmdlet to build new package versions
