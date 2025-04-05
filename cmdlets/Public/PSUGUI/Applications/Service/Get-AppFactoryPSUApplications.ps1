@@ -29,7 +29,33 @@ function Get-AppFactoryPSUApplications {
               }, @{Label = "Active"; expression = { $_.SourceFiles.Active } }, @{Label = "Source"; expression = { $_.SourceFiles.AppSource } }, @{Label = "Updated"; expression = { (Get-Date -Date $_.SourceFiles.LastUpdate).ToString("yyyy/MM/dd HH:mm:ss") } }, Information, SourceFiles, Install, Uninstall, RequirementRule, DetectionRule
               $TableData | Out-UDDataGridData -Context $EventData -TotalRows $Rows.Length
             } -Columns @(
-              New-UDDataGridColumn -Field Name -Flex 1.5
+              New-UDDataGridColumn -Field Name -Flex 1.5 -Render {
+                $EventData.Name
+                New-UDElement -tag "div" -content {} -Attributes @{style = @{width = "10px"}}
+                if($null -ne $EventData.Information.InformationURL -and $EventData.Information.InformationURL -ne "") {
+                  New-UDLink -Url $EventData.Information.InformationURL -OpenInNewWindow -Content {
+                    New-UDImage -URL "/assets/images/information.png" -Attributes @{
+                      alt = "$($EventData.Information.InformationURL)"
+                      style = @{
+                        width = "20px"
+                        height = "20px"
+                      }
+                    }
+                  }
+                }
+                New-UDElement -tag "div" -content {} -Attributes @{style = @{width = "10px"}}
+                if($null -ne $EventData.Information.PrivacyURL -and $EventData.Information.PrivacyURL -ne "") {
+                  New-UDLink -Url $EventData.Information.PrivacyURL -OpenInNewWindow -Content {
+                    New-UDImage -URL "/assets/images/privacy.png" -Attributes @{
+                      alt = "$($EventData.Information.PrivacyURL)"
+                      style = @{
+                        width = "20px"
+                        height = "20px"
+                      }
+                    }
+                  }
+                }
+              }
               New-UDDataGridColumn -Field Availability -Flex 2.0
               New-UDDataGridColumn -Field Active -Flex 1.0
               New-UDDataGridColumn -Field Updated -Flex 1.0

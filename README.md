@@ -6,3 +6,5 @@ These scripts are designed in two parts. The first part is for a central piece w
 
 # Credit Where Credit is Due
 These scripts started from the Intune App Factory Project (https://msendpointmgr.com/intune-app-factory/) and then modified from using a single tenant pipeline to a central/edge set of scripts. Each of these sets of scripts could then be adapted to a pipeline in the future if needed. Other modifications of the base idea was also adding in the ability to use WIM files for large application installs. 
+
+Information URL and Privacy URL iamges provided by www.freepik.com

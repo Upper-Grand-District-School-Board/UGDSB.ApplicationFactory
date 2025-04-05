@@ -6,3 +6,4 @@
 - Added function for extra files
 - Added version support for PSADT scripts
 - Added cmdlet to build new package versions
+- Added links/badges if an application has a privacy or information url defined in GUI
