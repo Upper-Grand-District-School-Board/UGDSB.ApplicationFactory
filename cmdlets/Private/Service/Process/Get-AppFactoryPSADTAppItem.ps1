@@ -19,7 +19,7 @@ function Get-AppFactoryPSADTAppItem {
   if($script:AppFactoryLogging){
     Write-PSFMessage -Message "[<c='green'>$($application.Information.DisplayName)</c>] Looking for PSADT application."  -Level $LogLevel -Tag "Application","$($application.Information.DisplayName)","PSADT" -Target "Application Factory Service" 
   }  
-  if($null -eq $application.Information.AppVersion -or $application.Version -eq "<replaced_by_build>"){
+  if($null -eq $application.Information.AppVersion -or $application.Information.AppVersion -eq "<replaced_by_build>"){
     $version = "1.0"
   }
   else{
