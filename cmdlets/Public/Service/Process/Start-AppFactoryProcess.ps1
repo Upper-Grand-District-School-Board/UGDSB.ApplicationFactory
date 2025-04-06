@@ -4,6 +4,7 @@ function Start-AppFactoryProcess{
     [Parameter(Mandatory = $true)][ValidateNotNullOrEmpty()][string]$ApplicationServicePath,
     [Parameter()][switch]$EnableLogging,
     [Parameter()][string[]]$AppList,
+    [Parameter()][switch]$force,
     [Parameter()][ValidateSet("Output", "Verbose")][string]$LogLevel = "Verbose"
   )
   # Start the Application Factory Process
@@ -22,7 +23,7 @@ function Start-AppFactoryProcess{
     Write-PSFMessage -Message "No applications set to active in AppFactory" -Level  "Output" -Tag "Process" -Target "Application Factory Service"
     return
   }
-  $ApplicationList = Test-AppFactoryAppVersion -applicationList $AllApplications -LogLevel $LogLevel
+  $ApplicationList = Test-AppFactoryAppVersion -applicationList $AllApplications -LogLevel $LogLevel -force:$force.IsPresent
   if($ApplicationList.Count -eq 0){
     Write-PSFMessage -Message "No new versions of applications found" -Level  "Output" -Tag "Process" -Target "Application Factory Service"
     return

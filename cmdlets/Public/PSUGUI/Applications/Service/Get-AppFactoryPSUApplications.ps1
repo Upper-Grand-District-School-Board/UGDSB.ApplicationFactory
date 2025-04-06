@@ -26,7 +26,7 @@ function Get-AppFactoryPSUApplications {
                     $orgList -join ", "
                   }
                 }
-              }, @{Label = "Active"; expression = { $_.SourceFiles.Active } }, @{Label = "Source"; expression = { $_.SourceFiles.AppSource } }, @{Label = "Updated"; expression = { (Get-Date -Date $_.SourceFiles.LastUpdate).ToString("yyyy/MM/dd HH:mm:ss") } }, Information, SourceFiles, Install, Uninstall, RequirementRule, DetectionRule
+              }, @{Label = "Active"; expression = { $_.SourceFiles.Active } }, @{Label = "Source"; expression = { $_.SourceFiles.AppSource } }, @{Label = "Updated"; expression = { (Get-Date -Date $_.SourceFiles.LastUpdate).ToString("yyyy/MM/dd HH:mm:ss") } }, Information, SourceFiles, Install, Uninstall, RequirementRule, Program, DetectionRule
               $TableData | Out-UDDataGridData -Context $EventData -TotalRows $Rows.Length
             } -Columns @(
               New-UDDataGridColumn -Field Name -Flex 1.5 -Render {
@@ -66,6 +66,7 @@ function Get-AppFactoryPSUApplications {
               New-UDDataGridColumn -Field Uninstall -Flex 0 -DisableColumnMenu -Render {} -DisableExport -DisableReorder -Hide
               New-UDDataGridColumn -Field RequirementRule -Flex 0 -DisableColumnMenu -Render {} -DisableExport -DisableReorder -Hide
               New-UDDataGridColumn -Field DetectionRule -Flex 0 -DisableColumnMenu -Render {} -DisableExport -DisableReorder -Hide
+              New-UDDataGridColumn -Field Program -Flex 0 -DisableColumnMenu -Render {} -DisableExport -DisableReorder -Hide
             ) -StripedRows -AutoHeight $true -PageSize 10 -RowsPerPageOptions @(10,25,50,100,1000) -ShowPagination -DefaultSortColumn Name -OnSelectionChange {
               Import-Module -Name $AppFactory_Module -Force
               $TableData = Get-UDElement -Id "ApplicationListTableData"
@@ -147,6 +148,10 @@ function Get-AppFactoryPSUApplications {
                 @{
                   id    = "Uninstall"
                   Value = $selectedRowData.Uninstall.type
+                },
+                @{
+                  id    = "InstallExperience"
+                  Value = $selectedRowData.Program.InstallExperience.tolower()
                 }
               )
               foreach ($item in $setSelectElements) {

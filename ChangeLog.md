@@ -7,3 +7,5 @@
 - Added version support for PSADT scripts
 - Added cmdlet to build new package versions
 - Added links/badges if an application has a privacy or information url defined in GUI
+- Added the ability to pause updating an application that we know the update is broken
+- 

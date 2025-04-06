@@ -37,6 +37,12 @@ function Get-PSUGUIAppInfo {
       type     = "switch"
     },
     @{
+      id       = "InstallExperience"
+      param    = "InstallExperience"
+      required = $false
+      type     = "select"
+    },
+    @{
       id       = "Client"
       param    = "publishTo"
       required = $false

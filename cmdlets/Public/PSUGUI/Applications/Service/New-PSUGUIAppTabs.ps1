@@ -27,6 +27,7 @@ function New-PSUGUIAppTabs{
             New-PSUGUISwitch -Label "Paused:" -id "pauseUpdate"
           }
           New-UDElement -Tag "tr" -Content {
+            New-PSUGUIInputSelectGroup -Label "Install As:" -id "InstallExperience" -options @("system", "user") -DefaultValue "System"
             New-PSUGUUploadIcon -Label "Icon:" -id "IconFile" -placeholder "Upload Icon" -Output "$($env:TEMP)\PSUApp_Icon.png"
           }
           New-UDElement -Tag "tr" -Content {

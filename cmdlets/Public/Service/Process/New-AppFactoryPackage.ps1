@@ -72,6 +72,15 @@ function New-AppFactoryPackage{
       }
       Out-File -InputObject $NewContent -FilePath $ToolkitFile -Encoding "utf8" -Force -Confirm:$false  
       #endregion
+      #region Update Install Experience if set to user
+      if($application.Program.InstallExperience -eq "User"){
+        $configPSPath = Join-Path -Path $AppPublishFolderPath -ChildPath "Config" -AdditionalChildPath "config.psd1"
+        $configPSContent = Get-Content -Path $configPSPath
+        $configPSContent = $configPSContent.replace('RequireAdmin = $true','RequireAdmin = $false')
+        $configPSContent | Out-File $configPSPath -Force
+      }
+
+      #endregion
       $iconPath = Join-Path -Path $AppFactorySourceDir -ChildPath "Apps" -AdditionalChildPath  $application.Information.AppFolderName,"Icon.png"
       $iconDestination = Join-Path -Path $AppPublishFolderPath -ChildPath "Icon.png"
       Copy-Item -Path $iconPath -Destination $iconDestination -Force -Confirm:$false  
