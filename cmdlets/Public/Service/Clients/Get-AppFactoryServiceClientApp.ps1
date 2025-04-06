@@ -4,6 +4,7 @@ function Get-AppFactoryServiceClientApp{
   param(
     [Parameter(Mandatory = $true)][ValidateNotNullOrEmpty()][string]$orgGUID,
     [Parameter()][ValidateNotNullOrEmpty()][string]$appGUID,
+    [Parameter()][switch]$AddToIntune,
     [Parameter()][ValidateSet("Output","Verbose")][string]$LogLevel = "Verbose"
   )
   # Blank List for the Apps
@@ -21,7 +22,11 @@ function Get-AppFactoryServiceClientApp{
     if(Test-Path -Path $customConfigPath){
       $customConfig = Get-Content -Path $customConfigPath | ConvertFrom-Json -Depth 5
     }
-    $applicaitonList.Add((Get-ClientAppConfig -application $app -customConfig $customConfig -audience "Public" -LogLevel $LogLevel))
+    $AppConfig = Get-ClientAppConfig -application $app -customConfig $customConfig -audience "Public" -LogLevel $LogLevel
+    if($AddToIntune.IsPresent -and -not $AppConfig.AddToIntune){
+      continue      
+    }  
+    $applicaitonList.Add($AppConfig)
   }
   foreach($app in $clientApps){
     $customConfigPath = Join-Path -Path $ClientConfigFolderPath -ChildPath "$($app.GUID).json"
@@ -29,7 +34,11 @@ function Get-AppFactoryServiceClientApp{
     if(Test-Path -Path $customConfigPath){
       $customConfig = Get-Content -Path $customConfigPath | ConvertFrom-Json -Depth 5
     }
-    $applicaitonList.Add((Get-ClientAppConfig -application $app -customConfig $customConfig -audience $orgGUID -LogLevel $LogLevel))
+    $AppConfig = Get-ClientAppConfig -application $app -customConfig $customConfig -audience $orgGUID -LogLevel $LogLevel
+    if($AddToIntune.IsPresent -and -not $AppConfig.AddToIntune){
+      continue      
+    }
+    $applicaitonList.Add($AppConfig)
   }  
   return $applicaitonList 
 }
