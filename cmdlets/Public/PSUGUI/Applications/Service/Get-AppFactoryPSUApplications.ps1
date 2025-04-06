@@ -94,13 +94,13 @@ function Get-AppFactoryPSUApplications {
                 },
                 @{
                   id          = "PrivacyURL"
-                  value       = $selectedRowData.Information.InformationURL
+                  value       = $selectedRowData.Information.PrivacyURL
                   type        = "text"
                   placeholder = "Information URL"                  
                 },
                 @{
                   id          = "InformationURL"
-                  value       = $selectedRowData.Information.PrivacyURL
+                  value       = $selectedRowData.Information.InformationURL
                   type        = "text"
                   placeholder = "Privacy URL"                  
                 },
@@ -175,6 +175,10 @@ function Get-AppFactoryPSUApplications {
                 @{
                   id      = "Active"
                   Checked = $selectedRowData.SourceFiles.Active
+                },
+                @{
+                  id      = "pauseUpdate"
+                  Checked = $selectedRowData.SourceFiles.pauseUpdate
                 }
               )
               foreach ($item in $setSwitchElements) {

@@ -31,6 +31,12 @@ function Get-PSUGUIAppInfo {
       type     = "switch"
     },
     @{
+      id       = "pauseUpdate"
+      param    = "pauseUpdate"
+      required = $false
+      type     = "switch"
+    },
+    @{
       id       = "Client"
       param    = "publishTo"
       required = $false

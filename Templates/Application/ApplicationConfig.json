@@ -21,6 +21,7 @@
     "publishTo": [],
     "DependsOn": [],
     "Active": false,
+    "pauseUpdate": false,
     "LastUpdate": ""
   },
   "Install" : {

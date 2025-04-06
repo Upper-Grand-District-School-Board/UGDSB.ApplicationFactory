@@ -26,6 +26,7 @@ function Set-AppFactoryApp {
     [Parameter()][ValidateSet("All", "x64", "x86")][string]$Architecture = "All",
     [Parameter()][String[]]$DependsOn = @(),  
     [Parameter()][bool]$active,
+    [Parameter()][bool]$pauseUpdate,
     [Parameter()][switch]$force,
     [Parameter()][ValidateSet("Output", "Verbose")][string]$LogLevel = "Verbose"
   )
@@ -65,6 +66,7 @@ function Set-AppFactoryApp {
   if ($PSBoundParameters.ContainsKey("MinimumSupportedWindowsRelease")) { $configfile.RequirementRule.MinimumSupportedWindowsRelease = $MinimumSupportedWindowsRelease }    
   if ($PSBoundParameters.ContainsKey("Architecture")) { $configfile.RequirementRule.Architecture = $Architecture } 
   if ($PSBoundParameters.ContainsKey("active")) { $configfile.SourceFiles.Active = $Active } 
+  if ($PSBoundParameters.ContainsKey("pauseUpdate")) { $configfile.SourceFiles.pauseUpdate = $pauseUpdate } 
   if ($PSBoundParameters.ContainsKey("DependsOn")) {
     if ($null -ne $DepandsOn -and $DepandsOn -ne "") {
       foreach ($app in $DependsOn) {

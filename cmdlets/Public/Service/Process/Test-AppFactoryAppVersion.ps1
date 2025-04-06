@@ -8,6 +8,12 @@ function Test-AppFactoryAppVersion{
   )  
   $FilteredList = [System.Collections.Generic.List[PSCustomObject]]::new()
   foreach($Application in $ApplicationList){
+    if($application.SourceFiles.PauseUpdate){
+      if ($script:AppFactoryLogging) {
+        Write-PSFMessage -Message "[<c='green'>$($application.Information.DisplayName)</c>] <c='yellow'>Updates are paused for this application.</c>" -Level $LogLevel -Tag "Application", "$($application.Information.DisplayName)" -Target "AppFactory"
+      }
+      continue
+    }
     switch ($Application.SourceFiles.AppSource) {
       "ECNO" {$AppItem = Get-AppFactoryECNOAppItem -application $Application -LogLevel $LogLevel}
       "Sharepoint" {$AppItem = Get-AppFactorySharepointAppItem -application $Application -LogLevel $LogLevel}

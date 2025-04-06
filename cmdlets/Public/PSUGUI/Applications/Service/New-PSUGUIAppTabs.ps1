@@ -24,6 +24,9 @@ function New-PSUGUIAppTabs{
           }
           New-UDElement -Tag "tr" -Content {
             New-PSUGUISwitch -Label "Active:" -id "Active" -Checked
+            New-PSUGUISwitch -Label "Paused:" -id "pauseUpdate"
+          }
+          New-UDElement -Tag "tr" -Content {
             New-PSUGUUploadIcon -Label "Icon:" -id "IconFile" -placeholder "Upload Icon" -Output "$($env:TEMP)\PSUApp_Icon.png"
           }
           New-UDElement -Tag "tr" -Content {

@@ -32,6 +32,7 @@ function New-AppFactoryApp {
     [Parameter()][ValidateSet("All", "x64", "x86")][string]$Architecture = "All",
     [Parameter()][String[]]$DependsOn = @(),    
     [Parameter()][bool]$active = $true,
+    [Parameter()][bool]$pauseUpdate = $false,
     [Parameter()][switch]$force,
     [Parameter()][ValidateSet("Output", "Verbose")][string]$LogLevel = "Verbose"
   )
@@ -69,6 +70,7 @@ function New-AppFactoryApp {
   $configfile.SourceFiles.FilterOptions = $FilterOptions
   $configfile.SourceFiles.publishTo = $publishTo
   $configfile.SourceFiles.active = $active
+  $configfile.SourceFiles.pauseUpdate = $pauseUpdate
   $configfile.Program.InstallExperience = $InstallExperience
   $configfile.Program.DeviceRestartBehavior = $DeviceRestartBehavior
   $configfile.Program.AllowAvailableUninstall = $AllowAvailableUninstall
