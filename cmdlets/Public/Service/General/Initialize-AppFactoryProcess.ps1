@@ -81,6 +81,10 @@ function Initialize-AppFactoryProcess{
   $script:AppFactorySharepointCertificateSecret = Get-Secret -Vault $configDetails.keyVault -Name $configDetails.sharepoint.certificateSecret
   $script:AppFactorySharepointVersionField = $configDetails.sharepoint.versionField
   $script:AppFactorySharepointDocumentLibrary = $configDetails.sharepoint.documentLibrary  
+  $script:AppFactoryServiceSendMailAs = $configDetails.ApplicationSendMailAs
+  $script:AppFactoryServiceClientID = $configDetails.ApplicationClientID
+  $script:AppFactoryServiceTenantID = $configDetails.ApplicationTenantID
+  $script:AppFactoryServiceSecret = Get-Secret -vault $configDetails.keyVault -Name $configDetails.ApplicationSecret
   if ($script:AppFactoryLogging) {
     Write-PSFMessage -Message "Loaded variables for the Application Factory Service" -Level $LogLevel -Tag "Setup" -Target "Application Factory Service"
   }    
