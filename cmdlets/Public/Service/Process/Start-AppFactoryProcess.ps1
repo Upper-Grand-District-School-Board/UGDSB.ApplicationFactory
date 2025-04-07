@@ -5,6 +5,7 @@ function Start-AppFactoryProcess{
     [Parameter()][switch]$EnableLogging,
     [Parameter()][string[]]$AppList,
     [Parameter()][switch]$force,
+    [Parameter()][switch]$testmode,
     [Parameter()][ValidateSet("Output", "Verbose")][string]$LogLevel = "Verbose"
   )
   # Start the Application Factory Process
@@ -82,15 +83,20 @@ function Start-AppFactoryProcess{
     }  
     if($EnableLogging.IsPresent){
       Write-PSFMessage -Message "[<c='green'>$($application.Information.DisplayName)</c>] Created intune application file." -Level  "Output" -Tag "Process",$application.Information.DisplayName -Target "Application Factory Service"
+    }    
+    if(-not $testmode.IsPresent){
+      $publish = Publish-AppFactoryIntunePackage -applicationList $publish -LogLevel $LogLevel
+      if($publish.Count -gt 0){
+        foreach($app in $publish){
+          Write-PSFMessage -Message "[<c='green'>$($app.Information.DisplayName)</c>] Application published." -Level  "Output" -Tag "Process",$app.Information.DisplayName -Target "Application Factory Service"
+        }
+      }
+      Remove-AppFactoryProcessFiles -applicationList $publish -LogLevel $LogLevel  
     }
-    $publish = Publish-AppFactoryIntunePackage -applicationList $publish -LogLevel $LogLevel
-    if($publish.Count -gt 0){
-      foreach($app in $publish){
-        Write-PSFMessage -Message "[<c='green'>$($app.Information.DisplayName)</c>] Application published." -Level  "Output" -Tag "Process",$app.Information.DisplayName -Target "Application Factory Service"
+    else{
+      if($EnableLogging.IsPresent){
+        Write-PSFMessage -Message "[<c='green'>$($application.Information.DisplayName)</c>] <c='yellow'>running in test mode so did not publish or remove files.</c>" -Level  "Output" -Tag "Process",$application.Information.DisplayName -Target "Application Factory Service"
       }
     }
-    Remove-AppFactoryProcessFiles -applicationList $publish -LogLevel $LogLevel
   }
-
-
 }

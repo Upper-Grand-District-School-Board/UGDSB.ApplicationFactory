@@ -8,4 +8,5 @@
 - Added cmdlet to build new package versions
 - Added links/badges if an application has a privacy or information url defined in GUI
 - Added the ability to pause updating an application that we know the update is broken
-- 
+- Allow install as user behavior applications
+- Added test mode that does everything except upload and remove the temp files
