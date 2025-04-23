@@ -76,6 +76,8 @@ function Publish-AppFactoryIntunePackage {
         }             
       }
       $application.SourceFiles.LastUpdate = (Get-Date).ToString("yyyy/MM/dd HH:mm:ss")
+      $originalAppInfo = Get-Content -Path "$($ApplicationPath)\ApplicationConfig.json" | ConvertFrom-JSON
+      $application.DetectionRule = $originalAppInfo.DetectionRule
       $application | ConvertTo-JSON -Depth 10 | Out-File -FilePath "$($ApplicationPath)\ApplicationConfig.json" -Force
       $applications.Add($application)
     } 

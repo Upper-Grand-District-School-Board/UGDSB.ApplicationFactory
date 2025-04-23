@@ -6,7 +6,7 @@
     RootModule = 'UGDSB.ApplicationFactory.psm1'
     
     # Version number of this module.
-    ModuleVersion = "0.5.1"
+    ModuleVersion = "0.5.2"
     
     # Supported PSEditions
     # CompatiblePSEditions = @()
