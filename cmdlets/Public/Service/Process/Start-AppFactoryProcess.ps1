@@ -33,70 +33,48 @@ function Start-AppFactoryProcess{
     Write-PSFMessage -Message "There are <c='green'>$($applicationList.count)</c> apps that require an update." -Level  "Output" -Tag "Process" -Target "Application Factory Service"
   }
 
-
+  $PublishedApplications = [System.Collections.Generic.List[PSCustomObject]]@()
   foreach($Application in $ApplicationList){
-    $publish = Test-AppFactoryFiles -applicationList $Application -LogLevel $LogLevel
-    if($publish.Count -eq 0){
-      Write-PSFMessage -Message "[<c='green'>$($application.Information.DisplayName)</c>] No applications to process." -Level  "Output" -Tag "Process" -Target "Application Factory Service"
-      continue
-    }
-    if($EnableLogging.IsPresent){
-      Write-PSFMessage -Message "[<c='green'>$($application.Information.DisplayName)</c>] Confirmed application files." -Level  "Output" -Tag "Process" -Target "Application Factory Service"
-    }
-    $publish = Get-AppFactoryInstaller -applicationList $publish -LogLevel $LogLevel
-    if($publish.Count -eq 0){
-      Write-PSFMessage -Message "[<c='green'>$($application.Information.DisplayName)</c>] No applications to process." -Level  "Output" -Tag "Process" -Target "Application Factory Service"
-      continue
-    }
-    if($EnableLogging.IsPresent){     
-      Write-PSFMessage -Message "[<c='green'>$($application.Information.DisplayName)</c>] Downloaded application files." -Level  "Output" -Tag "Process" -Target "Application Factory Service"
-    }
-    $publish = New-AppFactoryPackage -applicationList $publish -LogLevel $LogLevel
-    if($publish.Count -eq 0){
-      Write-PSFMessage -Message "[<c='green'>$($application.Information.DisplayName)</c>] No applications to process." -Level  "Output" -Tag "Process" -Target "Application Factory Service"
-      continue
-    }
-    if($EnableLogging.IsPresent){
-      Write-PSFMessage -Message "[<c='green'>$($application.Information.DisplayName)</c>] Copied template files to build from." -Level  "Output" -Tag "Process" -Target "Application Factory Service"
-    }
     try{
-      Publish-AppFactoryAppInstall -application $publish -LogLevel $LogLevel
-      if($EnableLogging.IsPresent){
-      Write-PSFMessage -Message "[<c='green'>$($application.Information.DisplayName)</c>] Updated install lines for application." -Level  "Output" -Tag "Process" -Target "Application Factory Service"
+      $publish = Test-AppFactoryFiles -applicationList $Application -LogLevel $LogLevel
+      if($publish.Count -eq 0){throw "No applications to process."}
+      $publish = Get-AppFactoryInstaller -applicationList $publish -LogLevel $LogLevel
+      if($publish.Count -eq 0){throw "No applications to process."}
+      $publish = New-AppFactoryPackage -applicationList $publish -LogLevel $LogLevel
+      if($publish.Count -eq 0){throw "No applications to process."}
+      try{
+        Publish-AppFactoryAppInstall -application $publish -LogLevel $LogLevel
       }
-      Publish-AppFactoryAppUninstall -application $publish -LogLevel $LogLevel  
-      if($EnableLogging.IsPresent){
-        Write-PSFMessage -Message "[<c='green'>$($application.Information.DisplayName)</c>] Updated uninstall lines for application." -Level  "Output" -Tag "Process" -Target "Application Factory Service"
+      catch{
+        throw "Updated install lines for application."
       }
+      try{
+        Publish-AppFactoryAppUninstall -application $publish -LogLevel $LogLevel  
+      }
+      catch{
+        throw "Updated uninstall lines for application."
+      }
+      $publish = New-AppFactoryIntuneFile -applicationList $publish -LogLevel $LogLevel
+      if($publish.Count -eq 0){throw "No applications to process."}
+      if(-not $testmode.IsPresent){
+        $publish = Publish-AppFactoryIntunePackage -applicationList $publish -LogLevel $LogLevel
+        if($publish.Count -gt 0){
+          foreach($app in $publish){
+            Write-PSFMessage -Message "[<c='green'>$($app.Information.DisplayName)</c>] Application published." -Level  "Output" -Tag "Process",$app.Information.DisplayName -Target "Application Factory Service"
+          }
+        }
+        else{throw "No applications to process."}    
+
+      }
+      else{
+        if($EnableLogging.IsPresent){
+          Write-PSFMessage -Message "[<c='green'>$($application.Information.DisplayName)</c>] <c='yellow'>running in test mode so did not publish or remove files.</c>" -Level  "Output" -Tag "Process",$application.Information.DisplayName -Target "Application Factory Service"
+        }        
+      }
+      $PublishedApplications.Add($Application)
     }
     catch{
-      Write-PSFMessage -Message "[<c='green'>$($application.Information.DisplayName)</c>] Unable to create publishing files." -Level  "Warning" -Tag "Process",$application.Information.DisplayName -Target "Application Factory Service"
-      continue    
-    }
-    if($EnableLogging.IsPresent){
-      Write-PSFMessage -Message "[<c='green'>$($application.Information.DisplayName)</c>] Files published." -Level  "Output" -Tag "Process",$application.Information.DisplayName -Target "Application Factory Service"
-    }
-    $publish = New-AppFactoryIntuneFile -applicationList $publish -LogLevel $LogLevel
-    if($publish.Count -eq 0){
-      Write-PSFMessage -Message "[<c='green'>$($application.Information.DisplayName)</c>] No applications to process." -Level  "Output" -Tag "Process" -Target "Application Factory Service"
-      continue
-    }  
-    if($EnableLogging.IsPresent){
-      Write-PSFMessage -Message "[<c='green'>$($application.Information.DisplayName)</c>] Created intune application file." -Level  "Output" -Tag "Process",$application.Information.DisplayName -Target "Application Factory Service"
-    }    
-    if(-not $testmode.IsPresent){
-      $publish = Publish-AppFactoryIntunePackage -applicationList $publish -LogLevel $LogLevel
-      if($publish.Count -gt 0){
-        foreach($app in $publish){
-          Write-PSFMessage -Message "[<c='green'>$($app.Information.DisplayName)</c>] Application published." -Level  "Output" -Tag "Process",$app.Information.DisplayName -Target "Application Factory Service"
-        }
-      }
-      Remove-AppFactoryProcessFiles -applicationList $publish -LogLevel $LogLevel  
-    }
-    else{
-      if($EnableLogging.IsPresent){
-        Write-PSFMessage -Message "[<c='green'>$($application.Information.DisplayName)</c>] <c='yellow'>running in test mode so did not publish or remove files.</c>" -Level  "Output" -Tag "Process",$application.Information.DisplayName -Target "Application Factory Service"
-      }
+      Write-PSFMessage -Message "[<c='green'>$($application.Information.DisplayName)</c>] Application failed to upload with error: $($_)." -Level  "Error" -Tag "Process",$application.Information.DisplayName,"IntuneError" -Target "Application Factory Service"
     }
   }
 }

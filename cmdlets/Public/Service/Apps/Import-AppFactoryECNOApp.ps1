@@ -47,6 +47,7 @@ function Import-AppFactoryECNOApp {
     StorageAccountContainerName    = $applicationName
     informationURL                 = $informationURL
     PrivacyURL                     = $privacyURL
+    publishTo                      = $publishTo
   }
   $NewApplication = New-AppFactoryApp @NewApplication
   $Detection = @{
