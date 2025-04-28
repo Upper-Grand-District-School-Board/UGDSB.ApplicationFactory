@@ -64,7 +64,8 @@ function Start-AppFactoryProcess{
           }
         }
         else{throw "No applications to process."}    
-
+        Remove-AppFactoryProcessFiles -applicationList $publish -LogLevel $LogLevel
+          
       }
       else{
         if($EnableLogging.IsPresent){
