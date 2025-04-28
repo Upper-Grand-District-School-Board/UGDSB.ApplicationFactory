@@ -22,6 +22,7 @@ function Set-AppFactoryServiceClientAppConfig{
     [Parameter()][ValidateSet("Output","Verbose")][string]$LogLevel = "Verbose"
   )
   $currentConfig = Get-AppFactoryServiceClientAppConfig -orgGUID $orgGUID -appGUID $appGUID -LogLevel $LogLevel
+  if(-not $currentConfig){$currentConfig = [PSCustomObject]@{}}
   foreach($item in $PSBoundParameters.GetEnumerator()){
     if($item.key -in ("orgGUID","appGUID","LogLevel")){continue}
     #$itemType = $item.Value.GetType().Name
