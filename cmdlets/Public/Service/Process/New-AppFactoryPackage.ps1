@@ -33,7 +33,7 @@ function New-AppFactoryPackage{
       #region Copy Application Files
       if($application.SourceFiles.AppSource -ne "PSADT"){
         try{
-          New-Item -Path "$($AppPublishFolderPath)\Files" -ItemType Directory | Out-Null
+          New-Item -Path "$($AppPublishFolderPath)\Files" -ItemType Directory -Force | Out-Null
           Copy-Item -Path "$($AppSetupFolderPath)\*" -Destination "$($AppPublishFolderPath)\Files" -Recurse -Force -Confirm:$false
         }
         catch {
