@@ -18,6 +18,8 @@ function Start-AppFactoryClient {
   }
   Initialize-AppFactoryClientProcess @init
   Write-PSFMessage -Message "Getting list of applications configurations from service." -Level  $LogLevel -Tag "Process" -Target "Application Factory Client"
+  # Clean Up Old Configuration Files that may remain
+  Get-ChildItem -Path (Join-Path -Path $script:AppFactoryClientSourceDir -ChildPath "Apps") -filter "*.json" | Remove-Item -Force
   Get-AppFactoryClientAppList -LogLevel $LogLevel
   # Clean old credential that is set to global by third party module
   $PublishedApplications = [System.Collections.Generic.List[PSCustomObject]]@()
