@@ -53,7 +53,9 @@ function Start-AppFactoryClient {
             throw "Failed to upload files."
           }
           Add-AppFactoryClientAppAssignments -application $application -intuneid $PublishedApp.id -LogLevel $LogLevel
-          Copy-AppFactoryClientAppAssignments -application $application -intuneid $PublishedApp.id -intuneApplications $intuneApplications -LogLevel $LogLevel
+          if($intuneApplications){
+            Copy-AppFactoryClientAppAssignments -application $application -intuneid $PublishedApp.id -intuneApplications $intuneApplications -LogLevel $LogLevel
+          }
           Remove-AppFactoryClientApp -application $application -intuneApplications $intuneApplications -LogLevel $LogLevel
           Add-AppFactoryClientESPAssignment -application $application -intuneid $PublishedApp.id -LogLevel $LogLevel
           Write-PSFMessage -Message "[<c='green'>$($application.IntuneAppName)</c>] Completed." -Level $LogLevel -Tag "Applications","$($application.IntuneAppName)" -Target "Application Factory Client"
