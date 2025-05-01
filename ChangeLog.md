@@ -1,3 +1,7 @@
+# 0.6.2
+
+- Moved the remove to the finally function instead of in the try so that it still removes in error
+
 # 0.6.1
 
 - Additional logic to prevent removing the wrong application on error

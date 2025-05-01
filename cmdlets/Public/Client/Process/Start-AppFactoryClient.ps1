@@ -75,9 +75,11 @@ function Start-AppFactoryClient {
                 Remove-GraphIntuneApp -applicationid $intune.id
               }
             }
-            Remove-AppFactoryClientAppFiles -applications $application -LogLevel $LogLevel
             Write-PSFMessage -Message "[<c='green'>$($application.IntuneAppName)</c>] Unable to complete process for application, please review the logs to what has failed. Error: $($_)" -Level Error -Tag "Applications","$($application.IntuneAppName)" -Target "Application Factory Client"
             continue
+          }
+          finally{
+            Remove-AppFactoryClientAppFiles -applications $application -LogLevel $LogLevel
           }
         } 
         if($originalCount -ne $PublishedApplications.Count){

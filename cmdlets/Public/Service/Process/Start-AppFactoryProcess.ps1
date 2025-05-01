@@ -67,8 +67,6 @@ function Start-AppFactoryProcess {
             }
           }
           else { throw "No applications to process." }    
-          Remove-AppFactoryProcessFiles -applicationList $publish -LogLevel $LogLevel
-          
         }
         else {
           if ($EnableLogging.IsPresent) {
@@ -79,6 +77,9 @@ function Start-AppFactoryProcess {
       }
       catch {
         Write-PSFMessage -Message "[<c='green'>$($application.Information.DisplayName)</c>] Application failed to upload with error: $($_)." -Level  "Error" -Tag "Process", $application.Information.DisplayName, "IntuneError" -Target "Application Factory Service"
+      }
+      finally{
+        Remove-AppFactoryProcessFiles -applicationList $publish -LogLevel $LogLevel
       }
     }    
   }
