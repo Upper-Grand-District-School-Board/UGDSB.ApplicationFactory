@@ -12,3 +12,4 @@
 - Added test mode that does everything except upload and remove the temp files
 - Added functionality to allow to send email for the applications that were processed in the last x days. Does require app registration with correct permissions
 - Additional bug fixes found in migration to production
+- Hid output from azcopy and downloads from progress for cleaner console output

@@ -74,7 +74,7 @@ function Publish-AppFactoryClientApp {
   try{
     Remove-Variable -Scope Global -Name AccessToken -ErrorAction SilentlyContinue -Force
     Connect-MSIntuneGraph -TenantID $script:AppFactoryClientTenantID -ClientID $script:AppFactoryClientClientID -ClientSecret $script:AppFactoryClientAppRegSecret | Out-Null
-    $Application = Add-IntuneWin32App @Win32AppArgs -UseAzCopy -ErrorAction Stop -WarningAction Stop
+    $Application = Add-IntuneWin32App @Win32AppArgs -UseAzCopy -AzCopyWindowStyle Hidden -ErrorAction Stop -WarningAction Stop 
     return $Application
   }
   catch{
