@@ -3,7 +3,7 @@ function Compare-AppFactoryClientAppVersions {
   [OutputType([System.Collections.Generic.List[PSCustomObject]])]
   param(  
     [Parameter(Mandatory = $true)][ValidateNotNullOrEmpty()][System.Collections.Generic.List[PSCustomObject]]$applicationList,
-    [Parameter(Mandatory = $true)][System.Collections.Generic.List[PSCustomObject]]$intuneApplications,
+    [Parameter()][System.Collections.Generic.List[PSCustomObject]]$intuneApplications,
     [Parameter()][switch]$force,
     [Parameter()][ValidateSet("Output", "Verbose")][string]$LogLevel = "Verbose"  
   )
