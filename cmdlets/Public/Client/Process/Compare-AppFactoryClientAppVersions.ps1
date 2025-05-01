@@ -3,8 +3,8 @@ function Compare-AppFactoryClientAppVersions {
   [OutputType([System.Collections.Generic.List[PSCustomObject]])]
   param(  
     [Parameter(Mandatory = $true)][ValidateNotNullOrEmpty()][System.Collections.Generic.List[PSCustomObject]]$applicationList,
-    [Parameter(Mandatory = $true)][ValidateNotNullOrEmpty()][System.Collections.Generic.List[PSCustomObject]]$intuneApplications,
-    [Parameter()][ValidateNotNullOrEmpty()][switch]$force,
+    [Parameter(Mandatory = $true)][System.Collections.Generic.List[PSCustomObject]]$intuneApplications,
+    [Parameter()][switch]$force,
     [Parameter()][ValidateSet("Output", "Verbose")][string]$LogLevel = "Verbose"  
   )
   # Create blank list to store the applications that we will be moving forward with.

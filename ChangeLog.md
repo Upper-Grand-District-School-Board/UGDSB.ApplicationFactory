@@ -11,3 +11,4 @@
 - Allow install as user behavior applications
 - Added test mode that does everything except upload and remove the temp files
 - Added functionality to allow to send email for the applications that were processed in the last x days. Does require app registration with correct permissions
+- Additional bug fixes found in migration to production
