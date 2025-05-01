@@ -49,6 +49,7 @@ function Start-AppFactoryClient {
           try{
             Get-AppFactoryClientAppFiles -applications $application -LogLevel $LogLevel
             Write-PSFMessage -Message "[<c='green'>$($application.IntuneAppName)</c>] Downloaded files." -Level $LogLevel -Tag "Applications","$($application.IntuneAppName)" -Target "Application Factory Client"
+            $PublishedApp = $null
             $PublishedApp = Publish-AppFactoryClientApp -application $application -LogLevel $LogLevel
             Write-PSFMessage -Message "[<c='green'>$($application.IntuneAppName)</c>] Pausing to ensure replication." -Level $LogLevel -Tag "Applications","$($application.IntuneAppName)" -Target "Application Factory Client"
             Start-Sleep -Seconds 30

@@ -1,3 +1,7 @@
+# 0.6.1
+
+- Additional logic to prevent removing the wrong application on error
+
 # 0.6.0
 
 - Added Changelog file
