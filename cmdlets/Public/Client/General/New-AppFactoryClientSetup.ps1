@@ -1,17 +1,17 @@
 function New-AppFactoryClientSetup {
   [CmdletBinding()]
   param(
-    [Parameter(Mandatory = $true)][ValidateNotNullOrEmpty()][string]$path,
+    [Parameter()][ValidateNotNullOrEmpty()][string]$path = "C:\AppFactory",
     [Parameter()][switch]$createSecretVault,
     [Parameter()][string]$vaultName = "ApplicationFactory",
     [Parameter(Mandatory = $true)][string]$AppRegistrationClientID,
     [Parameter(Mandatory = $true)][string]$AppRegistrationTenantID,
-    [Parameter(Mandatory = $true)][string]$AppRegSecretName,
-    [Parameter()][string]$AppRegSecretValue,
+    [Parameter()][string]$AppRegSecretName = "AppFactoryAppRegSecret",
+    [Parameter(Mandatory = $true)][string]$AppRegSecretValue,
     [Parameter(Mandatory = $true)][string]$APIEndpoint,
-    [Parameter(Mandatory = $true)][string]$APISecretName,
-    [Parameter()][string]$prefix,
-    [Parameter()][string]$APISecretValue
+    [Parameter()][string]$APISecretName = "AppFactoryAPISecret",
+    [Parameter()][string]$prefix = "af | ",
+    [Parameter(Mandatory = $true)][string]$APISecretValue
   )
   If (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) { throw "You need to run this function as administrator." } 
   # List of Required Moodules
