@@ -1,3 +1,9 @@
+# 0.6.3
+
+- Added description field for the client UI
+- Updated the wording for Available for enrolled devices:
+- Changed order between Required and Available
+
 # 0.6.2
 
 - Moved the remove to the finally function instead of in the try so that it still removes in error

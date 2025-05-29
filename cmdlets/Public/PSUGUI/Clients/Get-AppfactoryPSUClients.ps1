@@ -181,15 +181,3 @@ function Get-AppfactoryPSUClients {
     }
   }
 }
-<#
-New-UDApp -Content { 
-    $Rows = 1..100 | % {
-        @{ Id = $_; Name = 'Adam'; Number = Get-Random}
-    } 
-    New-UDDataGrid -id DataGrid -LoadRows {  
-    $Rows| Out-UDDataGridData -Context $EventData -TotalRows $Rows.Length
-} -Columns @(
-    New-UDDataGridColumn -Field name
-    New-UDDataGridColumn -Field number
-) -AutoHeight $true -Pagination -CheckboxSelection -CheckboxSelectionVisibleOnly -DisableRowSelectionOnClick
-#>

@@ -39,6 +39,7 @@ function Get-AppfactoryPSUClientApplications {
                 $obj = [PSCustomObject]@{
                   id             = $item.GUID
                   Name           = $item.Information.DisplayName
+                  Description    = $item.Information.Description
                   Enabled        = $AddToIntune
                   Updated        = $item.SourceFiles.LastUpdate
                   ClientDetails  = ($AppDetails | ConvertTo-Json -Depth 5)
@@ -93,6 +94,7 @@ function Get-AppfactoryPSUClientApplications {
               }
               Set-UDElement -id "ApplicationGUID" -Attributes @{ "value" = $selectedRow }
               Set-UDElement -id "ApplicationName" -Attributes @{ "value" = $selectedRowData.Name }
+              Set-UDElement -id "ApplicationDescription" -Attributes @{ "value" = $selectedRowData.Description }
               Set-UDElement -id "Enabled" -Attributes @{ "checked" = [System.Convert]::ToBoolean($selectedRowData.Enabled) }
               Set-UDElement -id "DownloadForground" -Attributes @{ "checked" = [System.Convert]::ToBoolean($AppDetails.foreground) }
               Set-UDElement -id "PreviousVersions" -Attributes @{ "value" = $PreviousVersionNumber }
@@ -191,7 +193,10 @@ function Get-AppfactoryPSUClientApplications {
             }
             New-UDElement -Tag "tr" -Content {
               New-PSUGUIInputTextGroup -Label "Display Name:" -id "ApplicationName" -placeholder "" -disabled -item_colspan 3 -item_width 80
-            }          
+            }      
+            New-UDElement -Tag "tr" -Content {
+              New-PSUGUIInputTextboxGroup -Label "Description:" -id "ApplicationDescription" -placeholder "" -disabled -item_colspan 3 -item_width 80 -Rows 4
+            }                 
             New-UDElement -Tag "tr" -Content {
               New-PSUGUISwitch -Label "Enabled:" -id "Enabled"
               New-PSUGUISwitch -Label "Download Foreground:" -id "DownloadForground"
@@ -222,17 +227,17 @@ function Get-AppfactoryPSUClientApplications {
               } -Attributes @{Colspan = 4 }
             } 
             New-UDElement -Tag "tr" -Content {
-              New-PSUGUIInputTextGroup -Label "Availabe:" -id "Available_Install" -placeholder "Names of entra groups comma seperated" -item_colspan 3 -item_width 80
-            }
-            New-UDElement -Tag "tr" -Content {
-              New-PSUGUIInputTextGroup -Label "Availabe Exceptions:" -id "Available_Exceptions" -placeholder "Names of entra groups comma seperated" -item_colspan 3 -item_width 80
-            }            
-            New-UDElement -Tag "tr" -Content {
               New-PSUGUIInputTextGroup -Label "Required:" -id "Required_Install" -placeholder "Names of entra groups comma seperated" -item_colspan 3 -item_width 80
             }
             New-UDElement -Tag "tr" -Content {
               New-PSUGUIInputTextGroup -Label "Required Exceptions:" -id "Required_Exceptions" -placeholder "Names of entra groups comma seperated" -item_colspan 3 -item_width 80
-            }                        
+            }              
+            New-UDElement -Tag "tr" -Content {
+              New-PSUGUIInputTextGroup -Label "Available for enrolled devices:" -id "Available_Install" -placeholder "Names of entra groups comma seperated" -item_colspan 3 -item_width 80
+            }
+            New-UDElement -Tag "tr" -Content {
+              New-PSUGUIInputTextGroup -Label "Available for enrolled devices Exceptions:" -id "Available_Exceptions" -placeholder "Names of entra groups comma seperated" -item_colspan 3 -item_width 80
+            }            
             New-UDElement -Tag "tr" -content { New-UDElement -Tag 'td' -content { New-UDElement -Tag "br" -content {} } }
             New-UDElement -Tag "tr" -Content {
               New-UDElement -Tag "td" -Content {
