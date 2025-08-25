@@ -13,8 +13,7 @@
 - Update Close App Logic for 4.1
 - Update Service UI logic for 4.1
 - Update Run as User Logic for 4.1
-- TODO: Clear Settings for app on GUI
-- 
+- Created cmdlet to update the app configs for 4.1 to remove service UI
 
 
 # 0.6.3

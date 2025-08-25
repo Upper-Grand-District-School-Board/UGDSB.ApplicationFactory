@@ -66,9 +66,9 @@
   },
   "Program": {
     "InstallCommand": "Invoke-AppDeployToolkit.exe Install -DeployMode Silent",
-    "InstallCommandInteractive": "%SystemRoot%\\System32\\WindowsPowerShell\\v1.0\\PowerShell.exe -ExecutionPolicy Bypass -NoProfile -File Invoke-ServiceUI.ps1 -DeploymentType Install -AllowRebootPassThru",
+    "InstallCommandInteractive": "Invoke-AppDeployToolkit.exe Install -DeployMode Auto",
     "UninstallCommand": "Invoke-AppDeployToolkit.exe Uninstall -DeployMode Silent",
-    "UninstallCommandInteractive": "%SystemRoot%\\System32\\WindowsPowerShell\\v1.0\\PowerShell.exe -ExecutionPolicy Bypass -NoProfile -File Invoke-ServiceUI.ps1 -DeploymentType Uninstall -AllowRebootPassThru",
+    "UninstallCommandInteractive": "Invoke-AppDeployToolkit.exe Uninstall -DeployMode Auto",
     "InstallExperience": "###INSTALLEXPERIENCE###",
     "DeviceRestartBehavior": "###RESTARTBEHAVIOUR###",
     "AllowAvailableUninstall": "###ALLOWUNINSTALL###"
