@@ -33,5 +33,11 @@ function New-AppFactoryClientRequirementRule {
     "applicableArchitectures"        = $ArchitectureTable[$application.RequirementRule.Architecture]
     "minimumSupportedWindowsRelease" = $OperatingSystemTable[$application.RequirementRule.MinimumSupportedWindowsRelease]
   }
+  if($application.RequirementRule.MinimumMemoryInMB){
+    $RequirementRule.Add("MinimumMemoryInMB", $application.RequirementRule.MinimumMemoryInMB)
+  }
+  if($application.RequirementRule.MinimumFreeDiskSpaceInMB){
+    $RequirementRule.Add("MinimumFreeDiskSpaceInMB", $application.RequirementRule.MinimumFreeDiskSpaceInMB)
+  }  
   return $RequirementRule
 }

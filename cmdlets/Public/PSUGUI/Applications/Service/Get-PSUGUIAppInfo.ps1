@@ -83,6 +83,18 @@ function Get-PSUGUIAppInfo {
       param    = "Notes"
       required = $false
       type     = "text"
+    },
+    @{
+      id       = "MinimumMemoryInMB"
+      param    = "MinimumMemoryInMB"
+      required = $false
+      type     = "text"
+    },
+    @{
+      id       = "MinimumFreeDiskSpaceInMB"
+      param    = "MinimumFreeDiskSpaceInMB"
+      required = $false
+      type     = "text"
     }
   )
   $SourceInformatinMap = @(

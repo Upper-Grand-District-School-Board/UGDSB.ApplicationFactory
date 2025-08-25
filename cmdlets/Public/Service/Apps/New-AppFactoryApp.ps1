@@ -30,6 +30,8 @@ function New-AppFactoryApp {
     [Parameter()][ValidateSet("true", "false")][string]$AllowAvailableUninstall = $true,
     [Parameter()][ValidateSet("W10_1607", "W10_1703", "W10_1709", "W10_1809", "W10_1909", "W10_2004", "W10_20H2", "W10_21H1", "W10_21H2", "W10_22H2", "W11_21H2", "W11_22H2")][string]$MinimumSupportedWindowsRelease = "W10_1607",
     [Parameter()][ValidateSet("All", "x64", "x86")][string]$Architecture = "All",
+    [Parameter()][ValidateNotNullOrEmpty()][int]$MinimumMemoryInMB = 0,
+    [Parameter()][ValidateNotNullOrEmpty()][int]$MinimumFreeDiskSpaceInMB = 0,
     [Parameter()][String[]]$DependsOn = @(),    
     [Parameter()][bool]$active = $true,
     [Parameter()][bool]$pauseUpdate = $false,
@@ -76,7 +78,8 @@ function New-AppFactoryApp {
   $configfile.Program.AllowAvailableUninstall = $AllowAvailableUninstall
   $configfile.RequirementRule.MinimumSupportedWindowsRelease = $MinimumSupportedWindowsRelease
   $configfile.RequirementRule.Architecture = $Architecture
-
+  $configfile.RequirementRule.MinimumMemoryInMB = $MinimumMemoryInMB
+  $configfile.RequirementRule.MinimumFreeDiskSpaceInMB = $MinimumFreeDiskSpaceInMB
   # If depends on was passed, check to make sure that the application exists
   if ($PSBoundParameters.ContainsKey("DependsOn")) {
     foreach ($app in $DependsOn) {

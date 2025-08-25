@@ -11,6 +11,7 @@ function Add-AppFactoryAppMSI{
     [Parameter()][bool]$secureArgumentList,
     [Parameter()][bool]$SkipMSIAlreadyInstalledCheck,
     [Parameter()][string]$Transforms,
+    [Parameter()][switch]$userInstall,
     [Parameter()][int[]]$SuccessExitCodes,
     [Parameter()][int[]]$rebootExitCodes,
     [Parameter()][int[]]$ignoreExitCodes,
@@ -24,11 +25,21 @@ function Add-AppFactoryAppMSI{
     else{
       $executePath = "`"`$(`$AppSetupFileName)`""
     }
-    $execute = "Start-ADTMsiProcess -Action `"$($Action)`" -FilePath $($executePath)"
+    if($userInstall.IsPresent){
+      $execute = "Start-ADTMsiProcessAsUser -Action `"$($Action)`" -FilePath $($executePath)"
+    }
+    else{
+      $execute = "Start-ADTMsiProcess -Action `"$($Action)`" -FilePath $($executePath)"
+    }
     $ApplicationScriptLines.Add("`t`$AppSetupFileName = `"$($AppSetupFileName)`"") | Out-Null
   }
   else{
-    $execute = "Start-ADTMsiProcess -Action `"$($Action)`" -productcode `"$($productcode)`""
+    if($userInstall.IsPresent){
+      $execute = "Start-ADTMsiProcessAsUser -Action `"$($Action)`" -productcode `"$($productcode)`""
+    }
+    else{
+      $execute = "Start-ADTMsiProcess -Action `"$($Action)`" -productcode `"$($productcode)`""
+    }
   }
   if ($PSBoundParameters.ContainsKey("Transforms")  -and $Transforms) {
     $ApplicationScriptLines.Add("`t`$Transforms = `"$($Transforms)`"") | Out-Null

@@ -2,7 +2,7 @@ function Get-AppFactoryClientApp{
   [CmdletBinding()]
   [OutputType([System.Collections.Generic.List[PSCustomObject]])]
   param(
-    [Parameter()][string]$appGUID,
+    [Parameter()][string]$GUID,
     [Parameter()][string]$AppName,
     [Parameter()][bool]$AddToIntune,
     [Parameter()][string]$AvailableAssignments,

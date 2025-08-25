@@ -1,6 +1,9 @@
 function Get-AppFactoryPSUApplications {
   [cmdletbinding()]
   param()
+  Initialize-AppFactoryProcess -ApplicationServicePath $AppFactory_ApplicationPath
+  $page:authtoken = Get-Secret -Vault $KVName -Name $APIInternalSecret -AsPlainText
+  $page:applist = Invoke-RestMethod -uri "https://$($psuenv)/api/appfactory/serviceapps" -Method Get -Headers @{ "Authorization" = "Bearer $($page:authtoken)" } 
   New-UDElement -Tag "figure" -ClassName "text-center" -Content {
     New-UDElement -Tag "h4" -ClassName "display-4" -Content { "Application Factory Applications" }
   }  
@@ -10,46 +13,30 @@ function Get-AppFactoryPSUApplications {
         New-UDElement -Tag "div" -ClassName "card-body rounded" -Content {
           New-UDTypography -Text "Application List" -Variant "h5" -ClassName "card-title rounded x-card-title"
           New-UDElement -Tag "div" -id "ApplicationList" -Content {
-            Initialize-AppFactoryProcess -ApplicationServicePath $AppFactory_ApplicationPath
             New-UDDataGrid -id "ApplicationListTableData" -LoadRows {
-              Initialize-AppFactoryProcess -ApplicationServicePath $AppFactory_ApplicationPath
-              $ClientList = Get-AppFactoryServiceClient
-              $TableData = Get-AppFactoryApp | Select-Object -Property @{Label = "ID"; expression = { $_.GUID } }, @{Label = "Name"; expression = { $_.Information.DisplayName } }, @{Label = "Availability"; expression = { 
-                  if ($_.SourceFiles.publishTo.count -eq 0) {
-                    "All"
-                  }
-                  else {
-                    $orgList = [System.Collections.Generic.List[String]]::new()
-                    foreach ($obj in $_.SourceFiles.publishTo) {
-                      $orgList.Add(($ClientList | Where-Object { $_.GUID -eq $obj }).Name) | Out-Null
-                    }
-                    $orgList -join ", "
-                  }
-                }
-              }, @{Label = "Active"; expression = { $_.SourceFiles.Active } }, @{Label = "Source"; expression = { $_.SourceFiles.AppSource } }, @{Label = "Updated"; expression = { (Get-Date -Date $_.SourceFiles.LastUpdate).ToString("yyyy/MM/dd HH:mm:ss") } }, Information, SourceFiles, Install, Uninstall, RequirementRule, Program, DetectionRule
-              $TableData | Out-UDDataGridData -Context $EventData -TotalRows $Rows.Length
+              $page:applist | Out-UDDataGridData -Context $EventData -TotalRows $Rows.Length
             } -Columns @(
               New-UDDataGridColumn -Field Name -Flex 1.5 -Render {
                 $EventData.Name
-                New-UDElement -tag "div" -content {} -Attributes @{style = @{width = "10px"}}
-                if($null -ne $EventData.Information.InformationURL -and $EventData.Information.InformationURL -ne "") {
+                New-UDElement -tag "div" -content {} -Attributes @{style = @{width = "10px" } }
+                if ($null -ne $EventData.Information.InformationURL -and $EventData.Information.InformationURL -ne "") {
                   New-UDLink -Url $EventData.Information.InformationURL -OpenInNewWindow -Content {
                     New-UDImage -URL "/assets/images/information.png" -Attributes @{
-                      alt = "$($EventData.Information.InformationURL)"
+                      alt   = "$($EventData.Information.InformationURL)"
                       style = @{
-                        width = "20px"
+                        width  = "20px"
                         height = "20px"
                       }
                     }
                   }
                 }
-                New-UDElement -tag "div" -content {} -Attributes @{style = @{width = "10px"}}
-                if($null -ne $EventData.Information.PrivacyURL -and $EventData.Information.PrivacyURL -ne "") {
+                New-UDElement -tag "div" -content {} -Attributes @{style = @{width = "10px" } }
+                if ($null -ne $EventData.Information.PrivacyURL -and $EventData.Information.PrivacyURL -ne "") {
                   New-UDLink -Url $EventData.Information.PrivacyURL -OpenInNewWindow -Content {
                     New-UDImage -URL "/assets/images/privacy.png" -Attributes @{
-                      alt = "$($EventData.Information.PrivacyURL)"
+                      alt   = "$($EventData.Information.PrivacyURL)"
                       style = @{
-                        width = "20px"
+                        width  = "20px"
                         height = "20px"
                       }
                     }
@@ -67,64 +54,43 @@ function Get-AppFactoryPSUApplications {
               New-UDDataGridColumn -Field RequirementRule -Flex 0 -DisableColumnMenu -Render {} -DisableExport -DisableReorder -Hide
               New-UDDataGridColumn -Field DetectionRule -Flex 0 -DisableColumnMenu -Render {} -DisableExport -DisableReorder -Hide
               New-UDDataGridColumn -Field Program -Flex 0 -DisableColumnMenu -Render {} -DisableExport -DisableReorder -Hide
-            ) -StripedRows -AutoHeight $true -PageSize 10 -RowsPerPageOptions @(10,25,50,100,1000) -ShowPagination -DefaultSortColumn Name -OnSelectionChange {
-              Import-Module -Name $AppFactory_Module -Force
+              New-UDDataGridColumn -Field AppVersions -Flex 0 -DisableColumnMenu -DisableExport -DisableReorder -Hide -Render {}
+            ) -StripedRows -AutoHeight $true -PageSize 10 -RowsPerPageOptions @(10, 25, 50, 100, 1000) -ShowPagination -DefaultSortColumn Name -OnSelectionChange {
               $TableData = Get-UDElement -Id "ApplicationListTableData"
               $selectedRow = ((Get-UDElement -Id "ApplicationListTableData").selection)[0]
               $selectedRowData = $TableData.Data.Rows | Where-Object { $_.ID -eq $selectedRow } 
-              $AppVersions = Get-AppFactoryServiceAppVersions -appGUID $selectedRow -AllAppList $script:PublishedAppList 
-              # Standard Text Based Elements to Set
-              $setTextElements = @(
-                @{
-                  id          = "ApplicationGUID"
-                  value       = $selectedRow
-                  type        = "text"
-                  placeholder = ""
-                },
-                @{
-                  id          = "ApplicationName"
-                  value       = $selectedRowData.Information.DisplayName
-                  type        = "text"
-                  placeholder = "Application Name"
-                },
-                @{
-                  id          = "Publisher"
-                  value       = $selectedRowData.Information.Publisher
-                  type        = "text"
-                  placeholder = "Publisher Name"                  
-                },
-                @{
-                  id          = "PrivacyURL"
-                  value       = $selectedRowData.Information.PrivacyURL
-                  type        = "text"
-                  placeholder = "Information URL"                  
-                },
-                @{
-                  id          = "InformationURL"
-                  value       = $selectedRowData.Information.InformationURL
-                  type        = "text"
-                  placeholder = "Privacy URL"                  
-                },
-                @{
-                  id          = "Owner"
-                  value       = $selectedRowData.Information.Owner
-                  type        = "text"
-                  placeholder = "Owner Name"                  
-                }
-              )
-              foreach ($item in $setTextElements) {
-                Set-UDElement -id $item.id -Properties @{
-                  value = $item.value
-                }                 
-              }
               if ($selectedRowData.Availability -ne "All") {
                 $ClientListValue = $selectedRowData.Availability -split ", "
               }
               else {
                 $ClientListValue = ""
-              }
-              # Standard Select Based Elements to Set
-              $setSelectElements = @(
+              }              
+              $setTextElements = @(
+                @{
+                  id    = "ApplicationGUID"
+                  value = $selectedRow
+                },
+                @{
+                  id    = "ApplicationName"
+                  value = $selectedRowData.Information.DisplayName
+                },
+                @{
+                  id    = "Publisher"
+                  value = $selectedRowData.Information.Publisher
+              
+                },
+                @{
+                  id    = "PrivacyURL"
+                  value = $selectedRowData.Information.PrivacyURL
+                },
+                @{
+                  id    = "InformationURL"
+                  value = $selectedRowData.Information.InformationURL
+                },
+                @{
+                  id    = "Owner"
+                  value = $selectedRowData.Information.Owner
+                },
                 @{
                   id    = "Client"
                   value = $ClientListValue
@@ -152,15 +118,7 @@ function Get-AppFactoryPSUApplications {
                 @{
                   id    = "InstallExperience"
                   Value = $selectedRowData.Program.InstallExperience.tolower()
-                }
-              )
-              foreach ($item in $setSelectElements) {
-                Set-UDElement -id $item.id -Properties @{
-                  Value = $item.Value
-                }
-              }
-              # Start Text Box Based Elements to Set
-              $setTextboxElements = @(
+                },
                 @{
                   id    = "Description"
                   value = $selectedRowData.Information.Description
@@ -168,14 +126,23 @@ function Get-AppFactoryPSUApplications {
                 @{
                   id    = "Notes"
                   value = $selectedRowData.Information.Notes
-                }                
+                },
+                @{
+                  id    = "MinimumFreeDiskSpaceInMB"
+                  value = $selectedRowData.RequirementRule.MinimumFreeDiskSpaceInMB
+                },
+                @{
+                  id    = "MinimumMemoryInMB"
+                  value = $selectedRowData.RequirementRule.MinimumMemoryInMB
+                }                                               
               )
-              foreach ($item in $setTextboxElements) {
+              foreach ($item in $setTextElements) {
                 Set-UDElement -id $item.id -Properties @{
-                  Value = $item.Value
-                }
-              }  
-              # Start Switch Based Elements to Set            
+                  value = $item.value
+                }                 
+              }
+              #endregion
+              #region Set Elements with Switch
               $setSwitchElements = @(
                 @{
                   id      = "Active"
@@ -191,15 +158,17 @@ function Get-AppFactoryPSUApplications {
                   Checked = $item.Checked
                 }
               }
-              # Available versions based on application
+              #endregion
+              #region Set available versions options
               Set-UDElement -id "AvailableVersions" -Properties @{
                 Options = @(
-                  foreach ($version in ($AppVersions | Sort-Object -Descending)) {
+                  foreach ($version in ($selectedRowData.AppVersions | Sort-Object -Descending)) {
                     New-UDSelectOption -Name $version -Value $version 
                   }
                 )
               }
-              # Detection drop down
+              #endregion
+              #region Detection Method
               Set-UDElement -Id "DetectionSelectionFields" -Content {}
               Set-UDElement -Id "DetectionSelectionFields" -Content {              
                 switch ($selectedRowData.DetectionRule.Type) {
@@ -232,14 +201,16 @@ function Get-AppFactoryPSUApplications {
                   }
                 }
               }
-              # Set Icon FIle
+              #endregion
+              #region Icon File
               $ApplicationPath = Join-Path -Path $script:AppFactorySourceDir -ChildPath "Apps" -AdditionalChildPath $selectedRowData.Information.AppFolderName
               $AppIconFile = Join-Path -Path $ApplicationPath -ChildPath "Icon.png"
               Set-UDElement -Id "imgdiv" -Content {}
               Set-UDElement -Id "imgdiv" -Content {
                 New-UDImage -Id "appimage" -Path "$($AppIconFile)" -Width 50 -Height 50
               }
-              # Set Source Files
+              #endregion
+              #region Source File Information
               Set-UDElement -Id "SourceSelectionFields" -Content {}
               Set-UDElement -Id "SourceSelectionFields" -Content {
                 switch ($selectedRowData.sourceFiles.appSource) {
@@ -269,7 +240,8 @@ function Get-AppFactoryPSUApplications {
                   }                  
                 }
               }
-              # Set Install Data
+              #endregion
+              #region Install Data
               Set-UDElement -Id "InstallSelectionFields" -Content {}
               Set-UDElement -Id "InstallSelectionFields" -Content {
                 switch ($selectedRowData.Install.type) {
@@ -286,8 +258,10 @@ function Get-AppFactoryPSUApplications {
                     New-PSUGUIInstallPowershell -SourceData  $selectedRowData.install -versiondata $selectedRowData.Information
                   }
                 }
-              }              
-              # Set Uninstall Data
+              }  
+              #endregion            
+              ## Set Uninstall Data
+              #region Uninstall Data
               Set-UDElement -Id "UninstallSelectionFields" -Content {}
               Set-UDElement -Id "UninstallSelectionFields" -Content {
                 switch ($selectedRowData.Uninstall.type) {
@@ -310,7 +284,8 @@ function Get-AppFactoryPSUApplications {
                     New-PSUGUIUninstallPowershell -SourceData  $selectedRowData.uninstall
                   }                
                 }
-              }               
+              }  
+              #endregion             
               Set-UDElement -id "UpdateApplication" -Properties @{
                 Disabled = $false
               }
@@ -332,6 +307,9 @@ function Get-AppFactoryPSUApplications {
         New-UDElement -Tag "div" -ClassName "card-body rounded" -Content {
           New-UDTypography -Text "Application Details" -Variant "h5" -ClassName "card-title rounded x-card-title"
           New-UDButton -Id "NewApplication" -Text "New Application" -ClassName "btn btn-primary" -OnClick {
+            Show-UDModal -Content {
+              New-UDTypography -Text "Creating Application Configuration" -Variant "h5"
+            }            
             $global:submitApp = $true
             $AppInformation = Get-PSUGUIAppInfo
             $AppInstall = Get-PSUGUIAppInstallInfo
@@ -359,11 +337,15 @@ function Get-AppFactoryPSUApplications {
               }
               Copy-Item -Path $IconPath -Destination $IconDesination -Force
               Set-UDElement -id "AppTabs" -Content {New-PSUGUIAppTabs}
+              $page:applist = Invoke-RestMethod -uri "https://$($psuenv)/api/appfactory/serviceapps" -Method Get -Headers @{ "Authorization" = "Bearer $($page:authtoken)" } 
+              Hide-UDModal   
               Sync-UDElement -Id 'ApplicationListTableData'              
             }
           }
           New-UDButton -Id "UpdateApplication" -Text "Update Application" -Disabled -ClassName "btn btn-primary" -OnClick {
-            Import-Module -Name $AppFactory_Module -Force
+            Show-UDModal -Content {
+              New-UDTypography -Text "Updating Application Configuration" -Variant "h5"
+            }            
             Initialize-AppFactoryProcess -ApplicationServicePath $AppFactory_ApplicationPath            
             $global:submitApp = $true            
             $AppInformation = Get-PSUGUIAppInfo
@@ -388,12 +370,13 @@ function Get-AppFactoryPSUApplications {
                 $DetectionPS = Join-Path -Path $AppFolder -ChildPath "Detection.ps1"
                 $ScriptData | Out-File -FilePath $DetectionPS -Force
               }
+              $page:applist = Invoke-RestMethod -uri "https://$($psuenv)/api/appfactory/serviceapps" -Method Get -Headers @{ "Authorization" = "Bearer $($page:authtoken)" } 
+              Hide-UDModal   
               Sync-UDElement -Id 'ApplicationListTableData'              
             }            
           }
           New-UDButton -Id "DeleteApplication" -Text "Delete Application" -Disabled -ClassName "btn btn-primary" -OnClick {
             Show-UDModal -MaxWidth lg -Content {
-              Import-Module -Name $AppFactory_Module -Force
               Initialize-AppFactoryProcess -ApplicationServicePath $AppFactory_ApplicationPath
               $TableData = Get-UDElement -Id "ApplicationListTableData"
               $selectedRow = ((Get-UDElement -Id "ApplicationListTableData").selection)[0]
@@ -402,6 +385,7 @@ function Get-AppFactoryPSUApplications {
               New-UDTypography -Text "Are you sure you want to delete this application? $($displayName)" -Variant "h5"
               New-UDButton -Text "Yes"  -ClassName "btn btn-primary" -OnClick {
                 Remove-AppFactoryApp -appGUID $selectedRow
+                $page:applist = Invoke-RestMethod -uri "https://$($psuenv)/api/appfactory/serviceapps" -Method Get -Headers @{ "Authorization" = "Bearer $($page:authtoken)" } 
                 Sync-UDElement -Id 'ApplicationListTableData' 
                 Set-UDElement -id "AppTabs" -Content {New-PSUGUIAppTabs}
                 Hide-UDModal   
@@ -413,7 +397,6 @@ function Get-AppFactoryPSUApplications {
           }
           New-UDButton -Id "DeleteVersion" -Text "Delete Version" -Disabled -ClassName "btn btn-primary" -OnClick {
             Show-UDModal -MaxWidth lg -Content {
-              Import-Module -Name $AppFactory_Module -Force
               Initialize-AppFactoryProcess -ApplicationServicePath $AppFactory_ApplicationPath
               $TableData = Get-UDElement -Id "ApplicationListTableData"
               $selectedRow = ((Get-UDElement -Id "ApplicationListTableData").selection)[0]
@@ -423,7 +406,7 @@ function Get-AppFactoryPSUApplications {
               New-UDTypography -Text "Are you sure you want to delete this version $($versionToDelete) from $($displayName)?" -Variant "h5"
               New-UDButton -Text "Yes"  -ClassName "btn btn-primary" -OnClick {
                 Remove-AppFactoryServiceAppVersions -appGUID $selectedRow -version $versionToDelete -AllAppList $script:PublishedAppList
-                $AppVersions = Get-AppFactoryServiceAppVersions -appGUID $selectedRow -AllAppList $script:PublishedAppList 
+                $page:applist = Invoke-RestMethod -uri "https://$($psuenv)/api/appfactory/serviceapps" -Method Get -Headers @{ "Authorization" = "Bearer $($page:authtoken)" } 
                 Set-UDElement -id "AvailableVersions" -Properties @{
                   Options = @(
                     foreach ($version in ($AppVersions | Sort-Object -Descending)) {

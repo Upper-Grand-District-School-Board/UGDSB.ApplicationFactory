@@ -1,3 +1,22 @@
+# 0.7.0
+
+- Moved some GUI functions from being directly in the GUI cmdlet to calling an API endpoint in PSU
+- Added cmdlet to help with the application versions
+- Added support for default client using PSU variable AppFactoryDefaultClientGUID
+- Added requirement rule for memory and HDD
+- Added requirement rule for memory and HDD to GUI
+- Fix for info and privacy images not displaying in application list
+- Added ability to run client in test mode that just checks and downloads files does not upload
+- Added ability to run client with a specific app guid
+- Added ability to run client with a force flag to update exisitng applications
+- Fix for version field and default value
+- Update Close App Logic for 4.1
+- Update Service UI logic for 4.1
+- Update Run as User Logic for 4.1
+- TODO: Clear Settings for app on GUI
+- 
+
+
 # 0.6.3
 
 - Added description field for the client UI

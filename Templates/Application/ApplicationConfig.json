@@ -75,7 +75,9 @@
   },
   "RequirementRule": {
     "MinimumSupportedWindowsRelease": "###MINIMUMSUPPORTEDWINDOWSRELEASE###",
-    "Architecture": "###ARCHITECTURE###"
+    "Architecture": "###ARCHITECTURE###",
+    "MinimumFreeDiskSpaceInMB": 0,
+    "MinimumMemoryInMB": 0
   },
   "CustomRequirementRule": [],
   "DetectionRule": [ ]

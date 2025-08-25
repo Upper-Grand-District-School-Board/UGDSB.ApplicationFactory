@@ -24,6 +24,8 @@ function Set-AppFactoryApp {
     [Parameter()][ValidateSet("true", "false")][string]$AllowAvailableUninstall = $true,
     [Parameter()][ValidateSet("W10_1607", "W10_1703", "W10_1709", "W10_1809", "W10_1909", "W10_2004", "W10_20H2", "W10_21H1", "W10_21H2", "W10_22H2", "W11_21H2", "W11_22H2")][string]$MinimumSupportedWindowsRelease = "W10_1607",
     [Parameter()][ValidateSet("All", "x64", "x86")][string]$Architecture = "All",
+    [Parameter()][ValidateNotNullOrEmpty()][int]$MinimumMemoryInMB,
+    [Parameter()][ValidateNotNullOrEmpty()][int]$MinimumFreeDiskSpaceInMB,    
     [Parameter()][String[]]$DependsOn = @(),  
     [Parameter()][bool]$active,
     [Parameter()][bool]$pauseUpdate,
@@ -67,6 +69,8 @@ function Set-AppFactoryApp {
   if ($PSBoundParameters.ContainsKey("Architecture")) { $configfile.RequirementRule.Architecture = $Architecture } 
   if ($PSBoundParameters.ContainsKey("active")) { $configfile.SourceFiles.Active = $Active } 
   if ($PSBoundParameters.ContainsKey("pauseUpdate")) { $configfile.SourceFiles.pauseUpdate = $pauseUpdate } 
+  if ($PSBoundParameters.ContainsKey("MinimumMemoryInMB")) { $configfile.RequirementRule.MinimumMemoryInMB = $MinimumMemoryInMB }
+  if ($PSBoundParameters.ContainsKey("MinimumFreeDiskSpaceInMB")) { $configfile.RequirementRule.MinimumFreeDiskSpaceInMB = $MinimumFreeDiskSpaceInMB }   
   if ($PSBoundParameters.ContainsKey("DependsOn")) {
     if ($null -ne $DepandsOn -and $DepandsOn -ne "") {
       foreach ($app in $DependsOn) {

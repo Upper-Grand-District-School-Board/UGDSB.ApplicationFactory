@@ -16,17 +16,17 @@ function Publish-AppFactoryAppUninstall{
     $script:uninstallerPath = ""
   }
   #region Preinstall
-  if ($application.Uninstall.conflictingProcessStart) {
-    $params = @{
-      interactive     = $true
-      blockingProcess = $application.Uninstall.conflictingProcessStart
-      deferCount      = 3
-      LogLevel        = $LogLevel
-    }
-    foreach ($line in $((Add-AppFactoryApplicationBlockingProcess @params -LogLevel $LogLevel).SyncRoot)) {
-      $uninstallScript.Add($line)
-    }    
-  }
+  #if ($application.Uninstall.conflictingProcessStart) {
+  #  $params = @{
+  #    interactive     = $true
+  #    blockingProcess = $application.Uninstall.conflictingProcessStart
+  #    deferCount      = 3
+  #    LogLevel        = $LogLevel
+  #  }
+  #  foreach ($line in $((Add-AppFactoryApplicationBlockingProcess @params -LogLevel $LogLevel).SyncRoot)) {
+  #    $uninstallScript.Add($line)
+  #  }    
+  #}
   #endregion  
   #region WimMount
   if ($application.Uninstall.wim) {

@@ -9,6 +9,7 @@ function Add-AppFactoryAppEXE{
     [Parameter()][int[]]$SuccessExitCodes,
     [Parameter()][int[]]$rebootExitCodes,
     [Parameter()][int[]]$ignoreExitCodes,
+    [Parameter()][switch]$userInstall,
     [Parameter()][ValidateSet("Output", "Verbose")][string]$LogLevel = "Verbose"
   )
   $ApplicationScriptLines = [System.Collections.Generic.List[String[]]]@()
@@ -19,7 +20,12 @@ function Add-AppFactoryAppEXE{
   else{
     $executePath = "`"`$(`$AppSetupFileName)`""
   }
-  $execute = "Start-ADTProcess -FilePath $($executePath) -ArgumentList `"`$(`$argumentList)`""
+  if($userInstall.IsPresent){
+    $execute = "Start-ADTProcessAsUser -FilePath $($executePath) -ArgumentList `"`$(`$argumentList)`""
+  }
+  else{
+    $execute = "Start-ADTProcess -FilePath $($executePath) -ArgumentList `"`$(`$argumentList)`""
+  }
   if ($PSBoundParameters.ContainsKey("secureArgumentList") -and $secureArgumentList) {$execute = "$($execute) -secureArgumentList"}  
   if ($PSBoundParameters.ContainsKey("SuccessExitCodes") -and $SuccessExitCodes) {$execute = "$($execute) -SuccessExitCodes $($SuccessExitCodes -join ",")"}  
   if ($PSBoundParameters.ContainsKey("rebootExitCodes") -and $rebootExitCodes) {$execute = "$($execute) -rebootExitCodes $($rebootExitCodes -join ",")"}  

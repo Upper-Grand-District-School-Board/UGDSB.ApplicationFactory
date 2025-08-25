@@ -44,6 +44,10 @@ function New-PSUGUIAppTabs{
             New-PSUGUIInputSelectGroup -Label "Min Win OS:" -id "MinimumSupportedWindowsRelease" -placeholder "Minimum Windows OS Version" -options @("W10_1607", "W10_1703", "W10_1709", "W10_1809", "W10_1909", "W10_2004", "W10_20H2", "W10_21H1", "W10_21H2", "W10_22H2", "W11_21H2", "W11_22H2") -DefaultValue "W10_1607"
           } 
           New-UDElement -Tag "tr" -Content {
+            New-PSUGUIInputTextGroup -Label "Memory (in MB):" -id "MinimumMemoryInMB" -placeholder "Minimum Memory in MB"
+            New-PSUGUIInputTextGroup -Label "Disk Space (in MB):" -id "MinimumFreeDiskSpaceInMB" -placeholder "Minimum Disk Space in MB"
+          }          
+          New-UDElement -Tag "tr" -Content {
             New-PSUGUIInputTextboxGroup -Label "Description:" -id "Description" -placeholder "Description" -item_colspan 3 -item_width 80
           }
           New-UDElement -Tag "tr" -Content {

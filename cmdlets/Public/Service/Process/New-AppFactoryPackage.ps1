@@ -42,12 +42,31 @@ function New-AppFactoryPackage{
       }
       #endregion
       #region Inject Install/Uninstall in Deployment Script
+      $requireAdmin = $true
+      if($application.Program.InstallExperience -eq "User"){
+        $requireAdmin = $false
+      }
       $ToolkitContent = Get-Content -Path $ToolkitFile -Raw
       $ToolkitContent = $ToolkitContent -replace "###INTUNEAPPNAME###", $application.Information.DisplayName
       $ToolkitContent = $ToolkitContent -replace "###APPPUBLISHER###", $application.Information.Publisher
       $ToolkitContent = $ToolkitContent -replace "###VERSION###", $application.SourceFiles.PackageVersion
       $ToolkitContent = $ToolkitContent -replace "###APPARCH###", $application.RequirementRule.Architecture
+      if($application.install.conflictingProcessStart){
+        $ToolkitContent = $ToolkitContent -replace "###APPSTOCLOSESTART###", "$($application.install.conflictingProcessStart -join "','")"  
+      }
+      else{
+        $ToolkitContent = $ToolkitContent -replace "'###APPSTOCLOSESTART###'", ""
+      }
+      if($application.uninstall.conflictingProcessStart){
+        $ToolkitContent = $ToolkitContent -replace "###APPSTOCLOSESTARTEND###", "'$($application.uninstall.conflictingProcessStart -join "','")"
+      }
+      else{
+        $ToolkitContent = $ToolkitContent -replace "'###APPSTOCLOSESTARTEND###'", ""
+      }
+      
+
       $ToolkitContent = $ToolkitContent -replace "###AppLang###", "English"
+      $ToolkitContent = $ToolkitContent -replace "'###REQUIREADMIN###'", "`$$($requireAdmin)"
       $ToolkitContent = $ToolkitContent -replace "###APPDATE###", (Get-Date).ToShortDateString()
       $InstallerContent = Get-Content -Path "$($ApplicationDirectory)\install.ps1" -ErrorAction SilentlyContinue
       $UninstallerContent = Get-Content -Path "$($ApplicationDirectory)\uninstall.ps1" -ErrorAction SilentlyContinue
@@ -74,12 +93,12 @@ function New-AppFactoryPackage{
       Out-File -InputObject $NewContent -FilePath $ToolkitFile -Encoding "utf8" -Force -Confirm:$false  
       #endregion
       #region Update Install Experience if set to user
-      if($application.Program.InstallExperience -eq "User"){
-        $configPSPath = Join-Path -Path $AppPublishFolderPath -ChildPath "Config" -AdditionalChildPath "config.psd1"
-        $configPSContent = Get-Content -Path $configPSPath
-        $configPSContent = $configPSContent.replace('RequireAdmin = $true','RequireAdmin = $false')
-        $configPSContent | Out-File $configPSPath -Force
-      }
+      #if($application.Program.InstallExperience -eq "User"){
+      #  $configPSPath = Join-Path -Path $AppPublishFolderPath -ChildPath "Config" -AdditionalChildPath "config.psd1"
+      #  $configPSContent = Get-Content -Path $configPSPath
+      #  $configPSContent = $configPSContent.replace('RequireAdmin = $true','RequireAdmin = $false')
+      #  $configPSContent | Out-File $configPSPath -Force
+      #}
 
       #endregion
       $iconPath = Join-Path -Path $AppFactorySourceDir -ChildPath "Apps" -AdditionalChildPath  $application.Information.AppFolderName,"Icon.png"

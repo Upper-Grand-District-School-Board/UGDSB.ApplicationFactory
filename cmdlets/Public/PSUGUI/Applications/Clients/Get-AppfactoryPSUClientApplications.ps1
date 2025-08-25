@@ -5,11 +5,13 @@ function Get-AppfactoryPSUClientApplications {
   $ids = ($Roles -match "(^([0-9A-Fa-f]{8}[-]?[0-9A-Fa-f]{4}[-]?[0-9A-Fa-f]{4}[-]?[0-9A-Fa-f]{4}[-]?[0-9A-Fa-f]{12})$)")
   $clients = Get-AppFactoryServiceClient
   if ($roles.Contains($PSU_GUI_AdminRole)) {
-    $defaultValue = $clients[0].GUID
+    $defaultValue = $AppFactoryDefaultClientGUID
   }
   else {
     $defaultValue = $ids[0]
   }
+  $page:authtoken = Get-Secret -Vault $KVName -Name $APIInternalSecret -AsPlainText
+  $page:applist = Invoke-RestMethod -uri "https://$($psuenv)/api/appfactory/clientapps/$($defaultValue)" -Method Get -Headers @{ "Authorization" = "Bearer $($page:authtoken)" } 
   New-UDSelect -Id "ClientIDs" -ClassName "inputrequired"  -DefaultValue $defaultValue -FullWidth -Option {
     foreach ($client in $clients) {
       if ($ids.Contains($client.GUID) -or $roles.Contains($PSU_GUI_AdminRole)) {
@@ -17,7 +19,13 @@ function Get-AppfactoryPSUClientApplications {
       }
     }
   } -OnChange {
+    Show-UDModal -Content {
+      New-UDTypography -Text "Updating Organization List" -Variant "h5"
+    }    
+    $orgID = (Get-UDElement -id "ClientIDs").value
+    $page:applist = Invoke-RestMethod -uri "https://$($psuenv)/api/appfactory/clientapps/$($orgID)" -Method Get -Headers @{ "Authorization" = "Bearer $($page:authtoken)" } 
     Sync-UDElement -Id 'ApplicationListTableData'
+    Hide-UDModal
   }
   New-UDElement -tag "br"
   New-UDElement -tag "br"
@@ -28,66 +36,46 @@ function Get-AppfactoryPSUClientApplications {
           New-UDTypography -Text "Application List" -Variant "h5" -ClassName "card-title rounded x-card-title"
           New-UDElement -Tag "div" -id "ApplicationList" -Content {
             New-UDDataGrid -id "ApplicationListTableData" -LoadRows {
-              Initialize-AppFactoryProcess -ApplicationServicePath $AppFactory_ApplicationPath
-              $tableData = [System.Collections.Generic.List[PSCustomObject]]@()
-              $clientGUID = (Get-UDElement -id "ClientIDs").value
-              $rawData = Get-AppFactoryApp -Active | Where-Object { [String]::IsNullOrWhiteSpace($_.SourceFiles.publishTo) -or (-not [String]::IsNullOrWhiteSpace($_.SourceFiles.publishTo) -and $_.SourceFiles.publishTo -contains $clientGUID) }
-              foreach ($item in $rawData) {
-                $AppDetails = Get-AppFactoryServiceClientAppConfig -orgGUID $clientGUID -appGUID $item.GUID
-                if ([String]::IsNullOrWhiteSpace($AppDetails.AddToIntune)) { $AddToIntune = "False" }
-                else { $AddToIntune = "True" }
-                $obj = [PSCustomObject]@{
-                  id             = $item.GUID
-                  Name           = $item.Information.DisplayName
-                  Description    = $item.Information.Description
-                  Enabled        = $AddToIntune
-                  Updated        = $item.SourceFiles.LastUpdate
-                  ClientDetails  = ($AppDetails | ConvertTo-Json -Depth 5)
-                  InformationURL = $item.information.InformationURL
-                  PrivacyURL     = $item.Information.PrivacyURL
-                }
-                $tableData.Add($obj) | Out-Null
-              }              
-              $TableData | Out-UDDataGridData -Context $EventData -TotalRows $Rows.Length
-            } -Columns @(
-              New-UDDataGridColumn -Field ID -Flex 0 -DisableColumnMenu -DisableReorder -Hide
-              New-UDDataGridColumn -Field Name -Flex 1.5 -Render {
-                $EventData.Name
-                New-UDElement -tag "div" -content {} -Attributes @{style = @{width = "10px" } }
-                if ($null -ne $EventData.InformationURL -and $EventData.InformationURL -ne "") {
-                  New-UDLink -Url $EventData.InformationURL -OpenInNewWindow -Content {
-                    New-UDImage -URL "/assets/images/information.png" -Attributes @{
-                      alt   = "$($EventData.InformationURL)"
-                      style = @{
-                        width  = "20px"
-                        height = "20px"
-                      }
-                    }
-                  }
-                }
-                New-UDElement -tag "div" -content {} -Attributes @{style = @{width = "10px" } }
-                if ($null -ne $EventData.PrivacyURL -and $EventData.PrivacyURL -ne "") {
-                  New-UDLink -Url $EventData.PrivacyURL -OpenInNewWindow -Content {
-                    New-UDImage -URL "/assets/images/privacy.png" -Attributes @{
-                      alt   = "$($EventData.PrivacyURL)"
-                      style = @{
-                        width  = "20px"
-                        height = "20px"
-                      }
+            $page:applist | Out-UDDataGridData -Context $EventData -TotalRows $Rows.Length
+          } -Columns @(
+            New-UDDataGridColumn -Field ID -Flex 0 -DisableColumnMenu -DisableReorder -Hide
+            New-UDDataGridColumn -Field Name -Flex 1.5 -Render {
+              $EventData.Name
+              if ($null -ne $EventData.InformationURL -and $EventData.InformationURL -ne "") {
+                New-UDLink -Url $EventData.InformationURL -OpenInNewWindow -Content {
+                  New-UDImage -URL "/assets/images/information.png" -Attributes @{
+                    alt   = "$($EventData.InformationURL)"
+                    style = @{
+                      width  = "20px"
+                      height = "20px"
+                      "padding-left" = "5px"
                     }
                   }
                 }
               }
-              New-UDDataGridColumn -Field Enabled -Flex 1.5
-              New-UDDataGridColumn -Field Updated -Flex 1.5
-              New-UDDataGridColumn -Field ClientDetails -Flex 0 -DisableColumnMenu -DisableExport -DisableReorder -Hide -Render {}
-            ) -StripedRows -AutoHeight $true -PageSize 10 -RowsPerPageOptions @(10, 25, 50, 100, 1000) -ShowPagination -DefaultSortColumn Name -OnSelectionChange {
-              Import-Module -Name $AppFactory_Module -Force
+              if ($null -ne $EventData.PrivacyURL -and $EventData.PrivacyURL -ne "") {
+                New-UDLink -Url $EventData.PrivacyURL -OpenInNewWindow -Content {
+                  New-UDImage -URL "/assets/images/privacy.png" -Attributes @{
+                    alt   = "$($EventData.PrivacyURL)"
+                    style = @{
+                      width  = "20px"
+                      height = "20px"
+                      "padding-left" = "5px"
+                    }
+                  }
+                }
+              }
+            }
+            New-UDDataGridColumn -Field Enabled -Flex 1.5
+            New-UDDataGridColumn -Field Updated -Flex 1.5
+            New-UDDataGridColumn -Field ClientDetails -Flex 0 -DisableColumnMenu -DisableExport -DisableReorder -Hide -Render {}
+            New-UDDataGridColumn -Field AppVersions -Flex 0 -DisableColumnMenu -DisableExport -DisableReorder -Hide -Render {}
+          ) -StripedRows -AutoHeight $true -PageSize 10 -RowsPerPageOptions @(10, 25, 50, 100, 1000) -ShowPagination -DefaultSortColumn Name -OnSelectionChange {
               $TableData = Get-UDElement -Id "ApplicationListTableData"
               $selectedRow = ((Get-UDElement -Id "ApplicationListTableData").selection)[0]
-              $selectedRowData = $TableData.Data.Rows | Where-Object { $_.ID -eq $selectedRow } 
-              $AppVersions = Get-AppFactoryServiceAppVersions -appGUID $selectedRow -AllAppList $script:PublishedAppList 
+              $selectedRowData = $TableData.Data.Rows | Where-Object { $_.ID -eq $selectedRow }
               $AppDetails = $selectedRowData.ClientDetails | ConvertFrom-Json
+              $AppVersions = $selectedRowData.AppVersions
               $PreviousVersionNumber = 0
               if (-not [String]::IsNullOrWhiteSpace($AppDetails.KeepPrevious)) {
                 $PreviousVersionNumber = $AppDetails.KeepPrevious
@@ -109,6 +97,14 @@ function Get-AppfactoryPSUClientApplications {
               Set-UDElement -id "Required_Exceptions" -Attributes @{ "value" = $AppDetails.RequiredExceptions -join ", " }
               Set-UDElement -id "Required_Uninstall" -Attributes @{ "value" = $AppDetails.UninstallAssignments -join ", " }
               Set-UDElement -id "Uninstall_Exceptions" -Attributes @{ "value" = $AppDetails.UninstallExceptions -join ", " }
+              Set-UDElement -id "InformationURL" -Attributes @{ "value" = $selectedRowData.InformationURL }
+              Set-UDElement -id "PrivacyURL" -Attributes @{ "value" = $selectedRowData.PrivacyURL }
+              Set-UDElement -id "InstallType" -Attributes @{ "value" = $selectedRowData.InstallType }
+              Set-UDElement -id "Publisher" -Attributes @{ "value" = $selectedRowData.Publisher }
+              Set-UDElement -id "Architecture" -Attributes @{ "value" = $selectedRowData.RequirementRules.Architecture }
+              Set-UDElement -id "MinOS" -Attributes @{ "value" = $selectedRowData.RequirementRules.MinimumSupportedWindowsRelease }
+              Set-UDElement -id "MemoryInMB" -Attributes @{ "value" = $selectedRowData.RequirementRules.MinimumMemoryInMB ? $selectedRowData.RequirementRules.MinimumMemoryInMB : "" }
+              Set-UDElement -id "DiskSpaceInMB" -Attributes @{ "value" = $selectedRowData.RequirementRules.MinimumFreeDiskSpaceInMB ? $selectedRowData.RequirementRules.MinimumFreeDiskSpaceInMB : "" }       
               $FilterDetails = [System.Collections.Generic.List[String]]@()
               if ($appdetails.filters) {
                 $FilterNames = ($appdetails.filters | get-member | where-Object { $_.MemberType -eq "NoteProperty" } | select-object Name).Name
@@ -122,15 +118,19 @@ function Get-AppfactoryPSUClientApplications {
               }
               else {
                 $VersionValue = $AppDetails.AppVersion
-              }              
+              }
+              Set-UDElement -id "VersionControl" -Content {}
+              Set-UDElement -id "VersionControl" -Content {
+                New-UDSelect -ClassName "appfactory-select" -id "SelectedVersion" -FullWidth
+              }
               Set-UDElement -id "SelectedVersion" -Properties @{
-                Options      = @(
+                DefaultValue = $VersionValue
+                Options = @(
                   New-UDSelectOption -Name "Latest" -Value "0.0"
                   foreach ($version in ($AppVersions | Sort-Object -Descending)) {
-                    New-UDSelectOption -Name $version -Value $version 
-                  }
+                    New-UDSelectOption -Name $version -Value $version
+                  }            
                 )
-                DefaultValue = $VersionValue
               }
               Set-UDElement -id "UpdateApplication" -Properties @{
                 Disabled = $false
@@ -144,8 +144,9 @@ function Get-AppfactoryPSUClientApplications {
         New-UDElement -Tag "div" -ClassName "card-body rounded" -Content {
           New-UDTypography -Text "Application Details" -Variant "h5" -ClassName "card-title rounded x-card-title"
           New-UDButton -Id "UpdateApplication" -Text "Update Application" -ClassName "btn btn-primary" -Disabled -OnClick {
-            Import-Module -Name $AppFactory_Module -Force
-            Initialize-AppFactoryProcess -ApplicationServicePath $AppFactory_ApplicationPath        
+            Show-UDModal -Content {
+              New-UDTypography -Text "Updating Application Configuration" -Variant "h5"
+            }
             $selectedRow = ((Get-UDElement -Id "ApplicationListTableData").selection)[0]
             $orgID = (Get-UDElement -id "ClientIDs").value
             $AppVersionSelected = (Get-UDElement -id "SelectedVersion").Value
@@ -176,10 +177,11 @@ function Get-AppfactoryPSUClientApplications {
                 $filters.Add($filterDetails[0], @{filterName = $filterDetails[1]; filterType = $filterDetails[2] })
               }
             }
-            
             $AppConfig.Add("filters", $filters)            
-            Set-AppFactoryServiceClientAppConfig @AppConfig
-            Sync-UDElement -Id 'ApplicationListTableData'  
+            Invoke-RestMethod -uri "https://$($psuenv)/api/appfactory/clientapps/$($defaultValue)" -Method Put -Headers @{ "Authorization" = "Bearer $($page:authtoken)" } -Body (@{appdata = $AppConfig} | ConvertTo-Json -Depth 10) -ContentType "application/json" -StatusCodeVariable updatestatus
+            $page:applist = Invoke-RestMethod -uri "https://$($psuenv)/api/appfactory/clientapps/$($orgID)" -Method Get -Headers @{ "Authorization" = "Bearer $($page:authtoken)" } 
+            Sync-UDElement -Id 'ApplicationListTableData' 
+            Hide-UDModal
           }
           New-UDElement -Tag "table"  -Attributes @{
             "style"       = @{
@@ -203,8 +205,14 @@ function Get-AppfactoryPSUClientApplications {
             }     
             New-UDElement -Tag "tr" -Content {
               New-PSUGUIInputTextGroup -Label "Keep Previous Versions:" -id "PreviousVersions" -placeholder ""
-              New-PSUGUIInputSelectGroup -Label "Version:" -id "SelectedVersion" -placeholder "" -DefaultValue ""
-              
+              #New-PSUGUIInputSelectGroup -Label "Version:" -id "SelectedVersion" -placeholder "" -DefaultValue ""
+              New-UDElement -Tag "td" -Content {
+                New-UDElement -Tag "span" -ClassName "appfactory-label" -Content { New-UDTypography -Text "Version:" }
+              } -Attributes @{"style" = @{"width" = "20%"; "vertical-align" = "bottom"; }; }  
+              New-UDElement -Tag "td" -id "VersionControl" -Content {
+                New-UDSelect -ClassName "appfactory-select" -DefaultValue "" -id "SelectedVersion" -FullWidth -Option {
+                }
+              }
             }                                     
             New-UDElement -Tag "tr" -Content {
               New-PSUGUISwitch -Label "Copy Previous Assignments:" -id "CopyPrevious"
@@ -249,7 +257,31 @@ function Get-AppfactoryPSUClientApplications {
             }
             New-UDElement -Tag "tr" -Content {
               New-PSUGUIInputTextGroup -Label "Exceptions:" -id "Uninstall_Exceptions" -placeholder "Names of entra groups comma seperated" -item_colspan 3 -item_width 80
-            }              
+            }
+            New-UDElement -Tag "tr" -content { New-UDElement -Tag 'td' -content { New-UDElement -Tag "br" -content {} } }
+            New-UDElement -Tag "tr" -Content {
+              New-UDElement -Tag "td" -Content {
+                New-UDTypography -Text "Package Details" -Variant "h6" -ClassName "card-title rounded x-card-title"
+              } -Attributes @{Colspan = 4 }
+            } 
+            New-UDElement -Tag "tr" -Content {
+              New-PSUGUIInputTextGroup -Label "Architecture:" -id "Architecture" -disabled -placeholder ""
+              New-PSUGUIInputTextGroup -Label "Min OS:" -id "MinOS" -disabled -placeholder ""
+            } 
+            New-UDElement -Tag "tr" -Content {
+              New-PSUGUIInputTextGroup -Label "Memroy (in MB):" -id "MemoryInMB" -disabled -placeholder ""
+              New-PSUGUIInputTextGroup -Label "Disk Space (in MB):" -id "DiskSpaceInMB" -disabled -placeholder ""
+            } 
+            New-UDElement -Tag "tr" -Content {
+              New-PSUGUIInputTextGroup -Label "Install Type:" -id "InstallType" -disabled -placeholder ""
+              New-PSUGUIInputTextGroup -Label "Publisher:" -id "Publisher" -disabled -placeholder ""
+            } 
+            New-UDElement -Tag "tr" -Content {
+              New-PSUGUIInputTextGroup -Label "Information URL:" -id "InformationURL" -placeholder "" -disabled -item_colspan 3 -item_width 80
+            }
+            New-UDElement -Tag "tr" -Content {
+              New-PSUGUIInputTextGroup -Label "Privacy URL:" -id "PrivacyURL" -placeholder "" -disabled -item_colspan 3 -item_width 80
+            }
           }
         }        
         New-UDElement -Tag "div" -id "ts_step" -content {}

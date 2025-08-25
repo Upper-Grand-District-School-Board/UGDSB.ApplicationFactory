@@ -22,8 +22,14 @@ function Compare-AppFactoryClientAppVersions {
       }
       $applications.Add($application) | Out-Null
     }
-    else{
+    else{      
       Write-PSFMessage -Message "[<c='green'>$($application.IntuneAppName)</c>] Application version <c='green'>$($intuneApplication.displayVersion -join ",")</c> already published" -Level $LogLevel -Tag "Applications", "$($application.IntuneAppName)" -Target "Application Factory Client"
+      if($force.IsPresent){
+        if ($script:AppFactoryClientLogging) {
+          Write-PSFMessage -Message "[<c='green'>$($application.IntuneAppName)</c>] Forcing re-publish of application version <c='green'>$($intuneApplication.displayVersion -join ",")</c>" -Level $LogLevel -Tag "Applications", "$($application.IntuneAppName)" -Target "Application Factory Client"
+        }
+        $applications.Add($application) | Out-Null
+      }      
     }
   }
   return $applications 

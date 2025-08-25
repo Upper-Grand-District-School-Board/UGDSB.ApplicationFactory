@@ -11,17 +11,17 @@ function Publish-AppFactoryAppInstall {
   }
   $script:installerPath = "`$adtSession.dirFiles"
   #region Preinstall
-  if ($application.install.conflictingProcessStart) {
-    $params = @{
-      interactive     = $true
-      blockingProcess = $application.install.conflictingProcessStart
-      deferCount      = 3
-      LogLevel        = $LogLevel
-    }
-    foreach ($line in $((Add-AppFactoryApplicationBlockingProcess @params -LogLevel $LogLevel).SyncRoot)) {
-      $installScript.Add($line)
-    }    
-  }
+  #if ($application.install.conflictingProcessStart) {
+  #  $params = @{
+  #    interactive     = $true
+  #    blockingProcess = $application.install.conflictingProcessStart
+  #    deferCount      = 3
+  #    LogLevel        = $LogLevel
+  #  }
+  #  foreach ($line in $((Add-AppFactoryApplicationBlockingProcess @params -LogLevel $LogLevel).SyncRoot)) {
+  #    $installScript.Add($line)
+  #  }    
+  #}
   #endregion
   #region WimMount
   if ($application.install.wim) {
@@ -48,6 +48,9 @@ function Publish-AppFactoryAppInstall {
     rebootExitCodes    = $application.install.rebootExitCodes
     ignoreExitCodes    = $application.install.ignoreExitCodes  
     LogLevel           = $LogLevel  
+  }
+  if($application.Program.InstallExperience -eq "User"){
+    $params.add("userInstall",$true)
   }
   switch ($application.install.type) {
     "EXE" {
