@@ -178,7 +178,7 @@ function Get-AppfactoryPSUClientApplications {
               }
             }
             $AppConfig.Add("filters", $filters)            
-            Invoke-RestMethod -uri "https://$($psuenv)/api/appfactory/clientapps/$($defaultValue)" -Method Put -Headers @{ "Authorization" = "Bearer $($page:authtoken)" } -Body (@{appdata = $AppConfig} | ConvertTo-Json -Depth 10) -ContentType "application/json" -StatusCodeVariable updatestatus
+            Invoke-RestMethod -uri "https://$($psuenv)/api/appfactory/clientapps/$($orgID)" -Method Put -Headers @{ "Authorization" = "Bearer $($page:authtoken)" } -Body (@{appdata = $AppConfig} | ConvertTo-Json -Depth 10) -ContentType "application/json" -StatusCodeVariable updatestatus
             $page:applist = Invoke-RestMethod -uri "https://$($psuenv)/api/appfactory/clientapps/$($orgID)" -Method Get -Headers @{ "Authorization" = "Bearer $($page:authtoken)" } 
             Sync-UDElement -Id 'ApplicationListTableData' 
             Hide-UDModal

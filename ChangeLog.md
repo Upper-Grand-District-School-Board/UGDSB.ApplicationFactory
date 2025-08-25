@@ -1,3 +1,6 @@
+# 0.7.1
+- Bug fix for method not found in updating client app
+
 # 0.7.0
 
 - Moved some GUI functions from being directly in the GUI cmdlet to calling an API endpoint in PSU
