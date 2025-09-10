@@ -269,7 +269,7 @@ function Get-AppfactoryPSUClientApplications {
               New-PSUGUIInputTextGroup -Label "Min OS:" -id "MinOS" -disabled -placeholder ""
             } 
             New-UDElement -Tag "tr" -Content {
-              New-PSUGUIInputTextGroup -Label "Memroy (in MB):" -id "MemoryInMB" -disabled -placeholder ""
+              New-PSUGUIInputTextGroup -Label "Memory (in MB):" -id "MemoryInMB" -disabled -placeholder ""
               New-PSUGUIInputTextGroup -Label "Disk Space (in MB):" -id "DiskSpaceInMB" -disabled -placeholder ""
             } 
             New-UDElement -Tag "tr" -Content {

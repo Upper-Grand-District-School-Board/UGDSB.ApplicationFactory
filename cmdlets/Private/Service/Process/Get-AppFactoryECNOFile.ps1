@@ -33,5 +33,8 @@ function Get-AppFactoryECNOFile{
     "Wait" = $true
   }
   Start-Process @vars
+  $detectionScript = Join-Path -Path $destination -ChildPath "_detect.ps1"
+  $detectionScriptPath = Join-Path $script:AppFactorySourceDir -ChildPath "Apps" -AdditionalChildPath $application.Information.AppFolderName,"detection.ps1"
+  Copy-Item -Path $detectionScript -Destination $detectionScriptPath -Force
   Remove-Item -Path $7ZipFile -Force
 }

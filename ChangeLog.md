@@ -1,3 +1,7 @@
+# 0.7.2
+- Fix for the spelling of memory in the GUI
+- Update process for ECNO to copy over detection script when it runs the update
+
 # 0.7.1
 - Bug fix for method not found in updating client app
 
