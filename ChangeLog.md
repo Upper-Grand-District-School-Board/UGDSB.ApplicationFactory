@@ -1,3 +1,6 @@
+# 0.7.4
+- Fix for import-ecnoapp
+
 # 0.7.3
 - Fix for ECNO imports and files to update mb, ram, and os
 

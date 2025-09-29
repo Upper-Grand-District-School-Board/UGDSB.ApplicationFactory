@@ -33,24 +33,26 @@ function Get-AppFactoryECNOFile{
     "Wait" = $true
   }
   Start-Process @vars
-  $detectionScript = Join-Path -Path $destination -ChildPath "_detect.ps1"
-  $detectionScriptPath = Join-Path $script:AppFactorySourceDir -ChildPath "Apps" -AdditionalChildPath $application.Information.AppFolderName,"detection.ps1"
-  Copy-Item -Path $detectionScript -Destination $detectionScriptPath -Force
-  $appdetailsPath = Join-Path $destination -ChildPath "_win32app.txt"
-  $file = Get-Content -Path $appdetailsPath
-  $details = @{
-    "MinimumMemoryInMB" = $file[89].trim()
-    "MinimumFreeDiskSpaceInMB" = $file[87].trim()
-    "MinimumSupportedWindowsRelease" = $file[85].trim()
-  }
-  foreach($item in $details.GetEnumerator()){
-    $params = @{
-      $item.key = $item.value
+  if($application.guid){
+    $detectionScript = Join-Path -Path $destination -ChildPath "_detect.ps1"
+    $detectionScriptPath = Join-Path $script:AppFactorySourceDir -ChildPath "Apps" -AdditionalChildPath $application.Information.AppFolderName,"detection.ps1"
+    Copy-Item -Path $detectionScript -Destination $detectionScriptPath -Force    
+    $appdetailsPath = Join-Path $destination -ChildPath "_win32app.txt"
+    $file = Get-Content -Path $appdetailsPath
+    $details = @{
+      "MinimumMemoryInMB" = $file[89].trim()
+      "MinimumFreeDiskSpaceInMB" = $file[87].trim()
+      "MinimumSupportedWindowsRelease" = $file[85].trim()
     }
-    try{
-      Set-AppFactoryApp -appguid $application.guid @params | Out-Null
+    foreach($item in $details.GetEnumerator()){
+      $params = @{
+        $item.key = $item.value
+      }
+      try{
+        Set-AppFactoryApp -appguid $application.guid @params | Out-Null
+      }
+      catch{}
     }
-    catch{}
   }
   Remove-Item -Path $7ZipFile -Force
 }
