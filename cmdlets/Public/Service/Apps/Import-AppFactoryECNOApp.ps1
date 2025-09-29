@@ -36,6 +36,9 @@ function Import-AppFactoryECNOApp {
   $privacyURL = $file[55].trim()
   $Description = $file[43].trim()
   $Notes = $file[61].trim()
+  $MinimumMemoryInMB = $file[89].trim()
+  $MinimumFreeDiskSpaceInMB = $file[87].trim()
+  $MinimumSupportedWindowsRelease = $file[85].trim()  
   # Create application cinfig
   $NewApplication = @{
     displayName                    = $applicationName
@@ -48,6 +51,9 @@ function Import-AppFactoryECNOApp {
     informationURL                 = $informationURL
     PrivacyURL                     = $privacyURL
     publishTo                      = $publishTo
+    MinimumMemoryInMB              = $MinimumMemoryInMB
+    MinimumFreeDiskSpaceInMB       = $MinimumFreeDiskSpaceInMB
+    MinimumSupportedWindowsRelease = $MinimumSupportedWindowsRelease
   }
   $NewApplication = New-AppFactoryApp @NewApplication
   $Detection = @{

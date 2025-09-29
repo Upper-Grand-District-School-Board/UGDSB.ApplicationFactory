@@ -1,3 +1,6 @@
+# 0.7.3
+- Fix for ECNO imports and files to update mb, ram, and os
+
 # 0.7.2
 - Fix for the spelling of memory in the GUI
 - Update process for ECNO to copy over detection script when it runs the update
